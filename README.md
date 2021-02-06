@@ -20,6 +20,12 @@ To install all dependencies run the following command:
 npm install
 ```
 
+To run the example on your desktop, navigate to the example directory and run:
+
+```
+npm start
+```
+
 ## Running the tests
 
 Run the existing unit tests with the following command:
@@ -67,12 +73,13 @@ function App() {
 export default App;
 ```
 
+## Roadmap
+
+- Burndown existing issues.
+- Merge three graticule classes into a single class to reduce SLOC. These classes already have implied dependencies on eachother so might as well merge them.
+- Figure out how to unit-test canvas.
+- Deploy to NPM.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-- Hat tip to anyone whose code was used
-- Inspiration
-- etc
