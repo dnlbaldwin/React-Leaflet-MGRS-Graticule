@@ -30,8 +30,6 @@
   },
   "devDependencies": {
     "@types/leaflet": "^1.5.19",
-    "@types/react-leaflet": "^2.5.2",
-    "gh-pages": "^3.1.0",
-    "react-scripts": "^4.0.2"
+    "@types/react-leaflet": "^2.5.2"
   }
 }
