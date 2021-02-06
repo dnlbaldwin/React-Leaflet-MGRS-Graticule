@@ -59,6 +59,7 @@ class Graticule extends Layer {
       eastingArray: [],
       northingArray: [],
       minZoom: 6, //Must be at least at this zoom to see the graticules
+      maxZoom: 10,
     };
 
     this.options = (props && props.options) || this.defaultOptions;
@@ -109,7 +110,7 @@ class Graticule extends Layer {
     this.canvas.height = MAP_SIZE.y;
     const ZOOM = this.map.getZoom();
 
-    if (ZOOM > this.options.minZoom) {
+    if (ZOOM > this.options.minZoom && ZOOM < this.options.maxZoom) {
       let visibleGrids = this.getVizGrids();
 
       this.eastingArray = [];
