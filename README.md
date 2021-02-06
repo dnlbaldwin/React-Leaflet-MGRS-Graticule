@@ -1,6 +1,8 @@
 # React Leaflet MGRS Graticule
 
-Note: This is still a WIP! See known issues [HERE](https://github.com/dnlbaldwin/React-Leaflet-MGRS-Graticule/issues)
+**Note: This is still a WIP!**
+
+See known issues [HERE](https://github.com/dnlbaldwin/React-Leaflet-MGRS-Graticule/issues)
 
 See the live demo [HERE](https://dnlbaldwin.github.io/React-Leaflet-MGRS-Graticule/)
 
@@ -78,8 +80,8 @@ export default App;
 - Burndown existing issues.
 - Merge three graticule classes into a single class to reduce SLOC. These classes already have implied dependencies on eachother so might as well merge them.
 - Figure out how to unit-test canvas.
-- Deploy to NPM.
+- ~~Deploy to NPM.~~
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE) file for details
