@@ -1,7 +1,7 @@
-import { Layer } from "leaflet";
-import { useMap } from "react-leaflet";
-import { forward } from "mgrs";
-import { drawLabel } from "./CommonUtils";
+import { Layer } from 'leaflet';
+import { useMap } from 'react-leaflet';
+import { forward } from 'mgrs';
+import { drawLabel } from './CommonUtils';
 
 const MGRS_REGEX = /([0-9]+[A-Z])([A-Z]{2})(\d+)/;
 const GZD_INDEX = 1;
@@ -9,8 +9,8 @@ const GZD_INDEX = 1;
 const GzdGraticule = (props) => {
   let map = useMap();
 
-  const canvas = document.createElement("canvas");
-  canvas.classList.add("leaflet-zoom-animated");
+  const canvas = document.createElement('canvas');
+  canvas.classList.add('leaflet-zoom-animated');
 
   let g = new Graticule({ map: map, canvas: canvas });
   map.addLayer(g);
@@ -29,9 +29,9 @@ class Graticule extends Layer {
       showLabel: true,
       opacity: 10,
       weight: 3,
-      color: "#888888",
-      font: "14px Courier New",
-      fontColor: "#FFF",
+      color: '#888888',
+      font: '14px Courier New',
+      fontColor: '#FFF',
       dashArray: [6, 6],
       minZoom: 3,
     };
@@ -44,16 +44,16 @@ class Graticule extends Layer {
 
   onAdd(map) {
     map._panes.overlayPane.appendChild(this.canvas);
-    map.on("viewreset", this.reset, this);
-    map.on("move", this.reset, this);
+    map.on('viewreset', this.reset, this);
+    map.on('move', this.reset, this);
 
     this.reset();
   }
 
   onRemove(map) {
     map._panes.overlayPane.removeChild(this.canvas);
-    map.off("viewreset", this.reset, this);
-    map.off("move", this.reset, this);
+    map.off('viewreset', this.reset, this);
+    map.off('move', this.reset, this);
 
     this.canvas = null;
     this.map = null;
@@ -65,9 +65,7 @@ class Graticule extends Layer {
 
     this.canvas._leaflet_pos = MAP_LEFT_TOP;
 
-    this.canvas.style[
-      "transform"
-    ] = `translate3d(${MAP_LEFT_TOP.x}px,${MAP_LEFT_TOP.y}px,0)`;
+    this.canvas.style['transform'] = `translate3d(${MAP_LEFT_TOP.x}px,${MAP_LEFT_TOP.y}px,0)`;
 
     this.canvas.width = MAP_SIZE.x;
     this.canvas.height = MAP_SIZE.y;
@@ -84,7 +82,7 @@ class Graticule extends Layer {
       return;
     }
 
-    let ctx = this.canvas.getContext("2d");
+    let ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     ctx.lineWidth = this.options.weight;
     ctx.strokeStyle = this.options.color;
@@ -100,10 +98,8 @@ class Graticule extends Layer {
       y: this.canvas.height,
     });
 
-    let pointPerLat =
-      (leftTop.lat - rightBottom.lat) / (this.canvas.height * 0.2);
-    let pointPerLon =
-      (rightBottom.lng - leftTop.lng) / (this.canvas.width * 0.2);
+    let pointPerLat = (leftTop.lat - rightBottom.lat) / (this.canvas.height * 0.2);
+    let pointPerLon = (rightBottom.lng - leftTop.lng) / (this.canvas.width * 0.2);
 
     if (isNaN(pointPerLat) || isNaN(pointPerLon)) {
       return;
@@ -135,11 +131,7 @@ class Graticule extends Layer {
     leftTop.lng = parseInt(leftTop.lng - pointPerLon, 10);
 
     // Northern hemisphere
-    for (
-      let i = this.currLatInterval;
-      i <= leftTop.lat;
-      i += this.currLatInterval
-    ) {
+    for (let i = this.currLatInterval; i <= leftTop.lat; i += this.currLatInterval) {
       if (i >= rightBottom.lat) {
         // Handle 'X' MGRS Zone - Do not need it for the southern equivalent 'C'
         if (i === 80) {
@@ -158,11 +150,7 @@ class Graticule extends Layer {
 
     // Northern hemisphere
     // HACK - Add six to the right bottom lng to make sure the East 31V boundary is displayed at all times
-    for (
-      let i = this.currLngInterval;
-      i <= rightBottom.lng + 6;
-      i += this.currLngInterval
-    ) {
+    for (let i = this.currLngInterval; i <= rightBottom.lng + 6; i += this.currLngInterval) {
       if (i >= leftTop.lng) {
         this.drawLongitudeLine(ctx, i, leftTop.lat, rightBottom.lat);
       }
@@ -468,31 +456,23 @@ class Graticule extends Layer {
 
       let gzdLabel;
       try {
-        gzdLabel = forward([labelLongitude, labelLatitude], 1).match(
-          MGRS_REGEX
-        )[GZD_INDEX];
+        gzdLabel = forward([labelLongitude, labelLatitude], 1).match(MGRS_REGEX)[GZD_INDEX];
       } catch (error) {
         return; //Invalid MGRS value returned, so no need to try to display a label
       }
 
       // TODO - MORE MAGIC NUMBERS!!! - Don't want to display duplicates of the following zones
       if (
-        !(gzdLabel === "33X" && longitude === 6) &&
-        !(gzdLabel === "35X" && longitude === 18) &&
-        !(gzdLabel === "37X" && longitude === 30)
+        !(gzdLabel === '33X' && longitude === 6) &&
+        !(gzdLabel === '35X' && longitude === 18) &&
+        !(gzdLabel === '37X' && longitude === 30)
       ) {
         const LABEL_XY = this.map.latLngToContainerPoint({
           lat: labelLatitude,
           lng: labelLongitude,
         });
 
-        drawLabel(
-          ctx,
-          gzdLabel,
-          this.options.fontColor,
-          this.options.color,
-          LABEL_XY
-        );
+        drawLabel(ctx, gzdLabel, this.options.fontColor, this.options.color, LABEL_XY);
       }
     }
   }

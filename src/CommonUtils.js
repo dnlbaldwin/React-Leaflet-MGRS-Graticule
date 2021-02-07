@@ -1,5 +1,5 @@
-import { getGZD } from "gzd-utils";
-import { forward } from "mgrs";
+import { getGZD } from 'gzd-utils';
+import { forward } from 'mgrs';
 
 // The following indicies are used to indentify coordinates returned from gzd-utils
 const SW_INDEX = 0;
@@ -35,9 +35,7 @@ function getLineSlope(pointOne, pointTwo) {
 function getAdjustedLatitude(slope, adjustedLongitude, unadjustedLatLong) {
   let result;
   if (!isNaN(slope)) {
-    result =
-      unadjustedLatLong.lat +
-      slope * (adjustedLongitude - unadjustedLatLong.lng);
+    result = unadjustedLatLong.lat + slope * (adjustedLongitude - unadjustedLatLong.lng);
   } else {
     result = unadjustedLatLong.lat;
   }
@@ -54,14 +52,10 @@ function getAdjustedLatitude(slope, adjustedLongitude, unadjustedLatLong) {
 function getAdjustedLongitude(slope, adjustedLatitude, unadjustedLatLong) {
   let result;
   if (slope === 0) {
-    const e = new Error("getAdjustedLongitude: Zero slope received");
+    const e = new Error('getAdjustedLongitude: Zero slope received');
     throw e;
   } else if (!isNaN(slope)) {
-    result =
-      (adjustedLatitude -
-        unadjustedLatLong.lat +
-        slope * unadjustedLatLong.lng) /
-      slope;
+    result = (adjustedLatitude - unadjustedLatLong.lat + slope * unadjustedLatLong.lng) / slope;
   } else {
     result = unadjustedLatLong.lng;
   }
@@ -76,7 +70,7 @@ function getNextMgrsGzdCharacter(char) {
   // I and O are not valid characters for MGRS, so get the next
   // character recursively
   const result = String.fromCharCode(char.charCodeAt(0) + 1);
-  if (result === "I" || result === "O") {
+  if (result === 'I' || result === 'O') {
     return getNextMgrsGzdCharacter(result);
   } else {
     return result;
@@ -98,46 +92,41 @@ function connectToGzdBoundary(pointOne, pointTwo, direction) {
   let adjustedLatitude;
 
   switch (direction) {
-    case "East":
-      const gzdEastLongitude = getGZD(grid.match(TEN_K_MGRS_REGEX)[GZD_INDEX])
-        .geometry.coordinates[0][NE_INDEX][LONGITUDE_INDEX];
+    case 'East':
+      const gzdEastLongitude = getGZD(grid.match(TEN_K_MGRS_REGEX)[GZD_INDEX]).geometry.coordinates[0][NE_INDEX][
+        LONGITUDE_INDEX
+      ];
 
       adjustedLatitude = getAdjustedLatitude(slope, gzdEastLongitude, pointTwo);
       adjustedLongitude = gzdEastLongitude;
 
       return { lat: adjustedLatitude, lng: adjustedLongitude };
 
-    case "West":
-      const gzdWestLongitude = getGZD(grid.match(TEN_K_MGRS_REGEX)[GZD_INDEX])
-        .geometry.coordinates[0][NW_INDEX][LONGITUDE_INDEX];
+    case 'West':
+      const gzdWestLongitude = getGZD(grid.match(TEN_K_MGRS_REGEX)[GZD_INDEX]).geometry.coordinates[0][NW_INDEX][
+        LONGITUDE_INDEX
+      ];
 
       adjustedLatitude = getAdjustedLatitude(slope, gzdWestLongitude, pointTwo);
 
       adjustedLongitude = gzdWestLongitude;
       return { lat: adjustedLatitude, lng: adjustedLongitude };
-    case "North":
-      const gzdNorthLatitude = getGZD(grid.match(TEN_K_MGRS_REGEX)[GZD_INDEX])
-        .geometry.coordinates[0][NW_INDEX][LATITUDE_INDEX];
+    case 'North':
+      const gzdNorthLatitude = getGZD(grid.match(TEN_K_MGRS_REGEX)[GZD_INDEX]).geometry.coordinates[0][NW_INDEX][
+        LATITUDE_INDEX
+      ];
 
-      adjustedLongitude = getAdjustedLongitude(
-        slope,
-        gzdNorthLatitude,
-        pointTwo
-      );
+      adjustedLongitude = getAdjustedLongitude(slope, gzdNorthLatitude, pointTwo);
 
       // Handle a special case where the west most 100k easting line in the 32V GZD extends
       // west of the boundary
       const WEST_LNG_32V_BOUNDARY = 3;
       if (
-        grid.match(TEN_K_MGRS_REGEX)[GZD_INDEX] === "31V" &&
+        grid.match(TEN_K_MGRS_REGEX)[GZD_INDEX] === '31V' &&
         adjustedLongitude < WEST_LNG_32V_BOUNDARY &&
         pointTwo.lng > WEST_LNG_32V_BOUNDARY
       ) {
-        adjustedLatitude = getAdjustedLatitude(
-          slope,
-          WEST_LNG_32V_BOUNDARY,
-          pointTwo
-        );
+        adjustedLatitude = getAdjustedLatitude(slope, WEST_LNG_32V_BOUNDARY, pointTwo);
         adjustedLongitude = WEST_LNG_32V_BOUNDARY;
       } else {
         adjustedLatitude = gzdNorthLatitude;
@@ -145,15 +134,12 @@ function connectToGzdBoundary(pointOne, pointTwo, direction) {
 
       return { lat: adjustedLatitude, lng: adjustedLongitude };
 
-    case "South":
-      const gzdSouthLatitude = getGZD(grid.match(TEN_K_MGRS_REGEX)[GZD_INDEX])
-        .geometry.coordinates[0][SW_INDEX][LATITUDE_INDEX];
+    case 'South':
+      const gzdSouthLatitude = getGZD(grid.match(TEN_K_MGRS_REGEX)[GZD_INDEX]).geometry.coordinates[0][SW_INDEX][
+        LATITUDE_INDEX
+      ];
 
-      adjustedLongitude = getAdjustedLongitude(
-        slope,
-        gzdSouthLatitude,
-        pointTwo
-      );
+      adjustedLongitude = getAdjustedLongitude(slope, gzdSouthLatitude, pointTwo);
 
       adjustedLatitude = gzdSouthLatitude;
       return { lat: adjustedLatitude, lng: adjustedLongitude };
@@ -174,14 +160,10 @@ function getAllVisibleGzds(nwGzd, neGzd, seGzd, swGzd) {
   if (nwGzd === seGzd) {
     return [nwGzd];
   }
-  const NW_LONGITUDE_BAND = parseInt(
-    nwGzd.match(GZD_REGEX)[LONGITUDE_BAND_INDEX]
-  );
+  const NW_LONGITUDE_BAND = parseInt(nwGzd.match(GZD_REGEX)[LONGITUDE_BAND_INDEX]);
   const NW_LATITUDE_BAND = nwGzd.match(GZD_REGEX)[LATITUDE_BAND_INDEX];
 
-  const NE_LONGITUDE_BAND = parseInt(
-    neGzd.match(GZD_REGEX)[LONGITUDE_BAND_INDEX]
-  );
+  const NE_LONGITUDE_BAND = parseInt(neGzd.match(GZD_REGEX)[LONGITUDE_BAND_INDEX]);
 
   const SW_LATITUDE_BAND = swGzd.match(GZD_REGEX)[LATITUDE_BAND_INDEX];
 
@@ -191,8 +173,8 @@ function getAllVisibleGzds(nwGzd, neGzd, seGzd, swGzd) {
 
   // If the NW GZD is 32V then also include the relevant 31 series GZDs below it
   // This ensures that grids are displayed (since 32V is larger at the expense of 31V)
-  if (nwGzd === "32V") {
-    longitudeBands.push("31");
+  if (nwGzd === '32V') {
+    longitudeBands.push('31');
   }
 
   // We span at least two vertical bands
@@ -237,19 +219,19 @@ function getAllVisibleGzds(nwGzd, neGzd, seGzd, swGzd) {
   }
   // Remove non-existant X series GZDs around Svalbard
   result = result.filter(function (a) {
-    return a !== "32X" && a !== "34X" && a !== "36X";
+    return a !== '32X' && a !== '34X' && a !== '36X';
   });
 
   // Add 32V if 31W is visible
   // This ensures that grids are displayed (since 32V is larger at the expense of 31V)
-  if (result.includes("31W") && !result.includes("32V")) {
-    result.push("32V");
+  if (result.includes('31W') && !result.includes('32V')) {
+    result.push('32V');
   }
 
   // Handles a special case where 32V can be the NW and NE GZD, but the algorithm
   // doesn't show the 31U GZD
-  if (neGzd === "32V" && seGzd === "32U" && !result.includes("31U")) {
-    result.push("31U");
+  if (neGzd === '32V' && seGzd === '32U' && !result.includes('31U')) {
+    result.push('31U');
   }
 
   return result;
@@ -265,12 +247,7 @@ function drawLabel(ctx, labelText, textColor, backgroundColor, labelPosition) {
 
   ctx.fillStyle = backgroundColor;
   // Magic numbers will centre the rectangle over the text
-  ctx.fillRect(
-    LABEL_X - TEXT_WIDTH / 2 - 1,
-    LABEL_Y - TEXT_HEIGHT + 1,
-    TEXT_WIDTH + 3,
-    TEXT_HEIGHT + 2
-  );
+  ctx.fillRect(LABEL_X - TEXT_WIDTH / 2 - 1, LABEL_Y - TEXT_HEIGHT + 1, TEXT_WIDTH + 3, TEXT_HEIGHT + 2);
   ctx.fillStyle = textColor;
   ctx.fillText(labelText, LABEL_X - TEXT_WIDTH / 2, LABEL_Y);
 }

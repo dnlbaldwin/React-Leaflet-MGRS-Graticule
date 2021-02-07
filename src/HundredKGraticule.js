@@ -1,16 +1,10 @@
-import { Layer } from "leaflet";
-import { useMap } from "react-leaflet";
-import { forward } from "mgrs";
+import { Layer } from 'leaflet';
+import { useMap } from 'react-leaflet';
+import { forward } from 'mgrs';
 
-import {
-  connectToGzdBoundary,
-  drawLabel,
-  getAdjustedLatitude,
-  getAllVisibleGzds,
-  getLineSlope,
-} from "./CommonUtils";
+import { connectToGzdBoundary, drawLabel, getAdjustedLatitude, getAllVisibleGzds, getLineSlope } from './CommonUtils';
 
-import { getGZD } from "gzd-utils";
+import { getGZD } from 'gzd-utils';
 
 // The following indicies are used to indentify coordinates returned from gzd-utils
 const SW_INDEX = 0;
@@ -25,14 +19,14 @@ const MGRS_REGEX = /([0-9]+[A-Z])([A-Z]{2})(\d+)/;
 const GZD_INDEX = 1; //The group index for the 100k identifier in the regex above
 const HK_INDEX = 2;
 
-var utmObj = require("utm-latlng");
+var utmObj = require('utm-latlng');
 var utm = new utmObj(); // Defaults to WGS-84
 
 const HundredKGraticule = (props) => {
   let map = useMap();
 
-  const canvas = document.createElement("canvas");
-  canvas.classList.add("leaflet-zoom-animated");
+  const canvas = document.createElement('canvas');
+  canvas.classList.add('leaflet-zoom-animated');
 
   let g = new Graticule({ map: map, canvas: canvas });
   map.addLayer(g);
@@ -51,9 +45,9 @@ class Graticule extends Layer {
       showLabel: true,
       opacity: 10,
       weight: 2,
-      color: "#990000", //Font background colour and dash colour
-      font: "15px Courier New",
-      fontColor: "#FFFFFF",
+      color: '#990000', //Font background colour and dash colour
+      font: '15px Courier New',
+      fontColor: '#FFFFFF',
       dashArray: [4, 4],
       eastingArray: [],
       northingArray: [],
@@ -77,16 +71,16 @@ class Graticule extends Layer {
 
   onAdd(map) {
     map._panes.overlayPane.appendChild(this.canvas);
-    map.on("viewreset", this.reset, this);
-    map.on("move", this.reset, this);
+    map.on('viewreset', this.reset, this);
+    map.on('move', this.reset, this);
 
     this.reset();
   }
 
   onRemove(map) {
     map._panes.overlayPane.removeChild(this.canvas);
-    map.off("viewreset", this.reset, this);
-    map.off("move", this.reset, this);
+    map.off('viewreset', this.reset, this);
+    map.off('move', this.reset, this);
 
     this.canvas = null;
     this.map = null;
@@ -101,9 +95,7 @@ class Graticule extends Layer {
 
     this.canvas._leaflet_pos = MAP_TOP_LEFT;
 
-    this.canvas.style[
-      "transform"
-    ] = `translate3d(${MAP_TOP_LEFT.x}px,${MAP_TOP_LEFT.y}px,0)`;
+    this.canvas.style['transform'] = `translate3d(${MAP_TOP_LEFT.x}px,${MAP_TOP_LEFT.y}px,0)`;
 
     this.canvas.width = MAP_SIZE.x;
     this.canvas.height = MAP_SIZE.y;
@@ -120,31 +112,19 @@ class Graticule extends Layer {
 
   getVizGrids() {
     const NW_BOUND_MGRS = forward(
-      [
-        this.map.getBounds().getNorthWest()["lng"],
-        this.map.getBounds().getNorthWest()["lat"],
-      ],
+      [this.map.getBounds().getNorthWest()['lng'], this.map.getBounds().getNorthWest()['lat']],
       1
     );
     const NE_BOUND_MGRS = forward(
-      [
-        this.map.getBounds().getNorthEast()["lng"],
-        this.map.getBounds().getNorthEast()["lat"],
-      ],
+      [this.map.getBounds().getNorthEast()['lng'], this.map.getBounds().getNorthEast()['lat']],
       1
     );
     const SE_BOUND_MGRS = forward(
-      [
-        this.map.getBounds().getSouthEast()["lng"],
-        this.map.getBounds().getSouthEast()["lat"],
-      ],
+      [this.map.getBounds().getSouthEast()['lng'], this.map.getBounds().getSouthEast()['lat']],
       1
     );
     const SW_BOUND_MGRS = forward(
-      [
-        this.map.getBounds().getSouthWest()["lng"],
-        this.map.getBounds().getSouthWest()["lat"],
-      ],
+      [this.map.getBounds().getSouthWest()['lng'], this.map.getBounds().getSouthWest()['lat']],
       1
     );
 
@@ -202,21 +182,13 @@ class Graticule extends Layer {
       (adjustedLl.lat + coordinateLl.lat) / 2 + HALF_DEGREE,
     ]).match(MGRS_REGEX)[HK_INDEX];
 
-    drawLabel(
-      ctx,
-      LABEL_TEXT,
-      this.options.fontColor,
-      this.options.color,
-      LABEL_XY
-    );
+    drawLabel(ctx, LABEL_TEXT, this.options.fontColor, this.options.color, LABEL_XY);
   }
 
   handle31V(ctx, elemUtm, coordinateLl) {
-    const ZONE_BOUNDARIES = getGZD("31V");
-    const WEST_GZD_LONGITUDE =
-      ZONE_BOUNDARIES["geometry"]["coordinates"][0][NW_INDEX][LONGITUDE_INDEX];
-    const EAST_GZD_LONGITUDE =
-      ZONE_BOUNDARIES["geometry"]["coordinates"][0][NE_INDEX][LONGITUDE_INDEX];
+    const ZONE_BOUNDARIES = getGZD('31V');
+    const WEST_GZD_LONGITUDE = ZONE_BOUNDARIES['geometry']['coordinates'][0][NW_INDEX][LONGITUDE_INDEX];
+    const EAST_GZD_LONGITUDE = ZONE_BOUNDARIES['geometry']['coordinates'][0][NE_INDEX][LONGITUDE_INDEX];
 
     // 60km east of elem at the same northing - The shortest segment was measured to be around 65k
     const TEMP_POINT_LL = utm.convertUtmToLatLng(
@@ -229,11 +201,7 @@ class Graticule extends Layer {
     const SLOPE = getLineSlope(coordinateLl, TEMP_POINT_LL);
 
     // From the line slope derive the intersecting point with the GZD boundary
-    const ADJUSTED_EAST_LATITUDE = getAdjustedLatitude(
-      SLOPE,
-      EAST_GZD_LONGITUDE,
-      TEMP_POINT_LL
-    );
+    const ADJUSTED_EAST_LATITUDE = getAdjustedLatitude(SLOPE, EAST_GZD_LONGITUDE, TEMP_POINT_LL);
 
     const EAST_GZD_BOUNDARY_POINT = this.map.latLngToContainerPoint({
       lat: ADJUSTED_EAST_LATITUDE,
@@ -241,11 +209,7 @@ class Graticule extends Layer {
     });
 
     // Derive the west intersecting point using the same slope.
-    const ADJUSTED_WEST_LATITUDE = getAdjustedLatitude(
-      SLOPE,
-      WEST_GZD_LONGITUDE,
-      TEMP_POINT_LL
-    );
+    const ADJUSTED_WEST_LATITUDE = getAdjustedLatitude(SLOPE, WEST_GZD_LONGITUDE, TEMP_POINT_LL);
 
     const WEST_GZD_BOUNDARY_POINT = this.map.latLngToContainerPoint({
       lat: ADJUSTED_WEST_LATITUDE,
@@ -255,42 +219,21 @@ class Graticule extends Layer {
     ctx.lineTo(EAST_GZD_BOUNDARY_POINT.x, EAST_GZD_BOUNDARY_POINT.y);
 
     // Eastern 31V Labels
-    this.handle31VLabels(
-      ctx,
-      { lat: ADJUSTED_EAST_LATITUDE, lng: EAST_GZD_LONGITUDE },
-      coordinateLl
-    );
+    this.handle31VLabels(ctx, { lat: ADJUSTED_EAST_LATITUDE, lng: EAST_GZD_LONGITUDE }, coordinateLl);
 
     // Western 31V Labels
-    this.handle31VLabels(
-      ctx,
-      { lat: ADJUSTED_WEST_LATITUDE, lng: WEST_GZD_LONGITUDE },
-      coordinateLl
-    );
+    this.handle31VLabels(ctx, { lat: ADJUSTED_WEST_LATITUDE, lng: WEST_GZD_LONGITUDE }, coordinateLl);
   }
 
-  processEastingsAndNorthings(
-    startingNorthingUtm,
-    startingEastingUtm,
-    finalNorthingUtm,
-    finalEastingUtm
-  ) {
+  processEastingsAndNorthings(startingNorthingUtm, startingEastingUtm, finalNorthingUtm, finalEastingUtm) {
     let northingIterator = startingNorthingUtm.Northing;
     let eastingIterator = startingEastingUtm.Easting;
 
     //Round to nearest 100k metres -- the loop will need to iterate to there anyways
-    northingIterator =
-      Math.ceil(northingIterator / this.HUNDRED_K_GRID_INTERVAL) *
-      this.HUNDRED_K_GRID_INTERVAL;
-    eastingIterator =
-      Math.ceil(eastingIterator / this.HUNDRED_K_GRID_INTERVAL) *
-      this.HUNDRED_K_GRID_INTERVAL;
+    northingIterator = Math.ceil(northingIterator / this.HUNDRED_K_GRID_INTERVAL) * this.HUNDRED_K_GRID_INTERVAL;
+    eastingIterator = Math.ceil(eastingIterator / this.HUNDRED_K_GRID_INTERVAL) * this.HUNDRED_K_GRID_INTERVAL;
 
-    if (
-      startingNorthingUtm.ZoneNumber +
-        startingNorthingUtm.ZoneLetter.toString() ===
-      "31W"
-    ) {
+    if (startingNorthingUtm.ZoneNumber + startingNorthingUtm.ZoneLetter.toString() === '31W') {
       northingIterator = 7100000; // Round down for special case
     }
 
@@ -324,10 +267,7 @@ class Graticule extends Layer {
   }
 
   processGridIntersection(mapBounds, eastingElem, northingElem) {
-    if (
-      eastingElem.zoneNumber === northingElem.zoneNumber &&
-      eastingElem.zoneLetter === northingElem.zoneLetter
-    ) {
+    if (eastingElem.zoneNumber === northingElem.zoneNumber && eastingElem.zoneLetter === northingElem.zoneLetter) {
       const GRID_INTERSECTION = {
         northing: northingElem.northing,
         easting: eastingElem.easting,
@@ -358,10 +298,7 @@ class Graticule extends Layer {
       firstIntersection.zoneLetter
     );
 
-    let labelText = forward([
-      labelCoordinateLl.lng,
-      labelCoordinateLl.lat,
-    ]).match(MGRS_REGEX)[HK_INDEX];
+    let labelText = forward([labelCoordinateLl.lng, labelCoordinateLl.lat]).match(MGRS_REGEX)[HK_INDEX];
 
     drawLabel(
       ctx,
@@ -376,7 +313,7 @@ class Graticule extends Layer {
   }
 
   generateGrids(visibleGzds) {
-    let ctx = this.canvas.getContext("2d");
+    let ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     ctx.lineWidth = this.options.weight;
     ctx.strokeStyle = this.options.color;
@@ -393,14 +330,10 @@ class Graticule extends Layer {
         return; //Invalid MGRS value returned, so no need to try to display the grid
       }
 
-      const SW_CORNER_LL =
-        zoneBoundaries["geometry"]["coordinates"][0][SW_INDEX];
-      const NW_CORNER_LL =
-        zoneBoundaries["geometry"]["coordinates"][0][NW_INDEX];
-      const NE_CORNER_LL =
-        zoneBoundaries["geometry"]["coordinates"][0][NE_INDEX];
-      const SE_CORNER_LL =
-        zoneBoundaries["geometry"]["coordinates"][0][SE_INDEX];
+      const SW_CORNER_LL = zoneBoundaries['geometry']['coordinates'][0][SW_INDEX];
+      const NW_CORNER_LL = zoneBoundaries['geometry']['coordinates'][0][NW_INDEX];
+      const NE_CORNER_LL = zoneBoundaries['geometry']['coordinates'][0][NE_INDEX];
+      const SE_CORNER_LL = zoneBoundaries['geometry']['coordinates'][0][SE_INDEX];
 
       const UTM_RESOLUTION = 0; //No decimal places when returning the UTM location
 
@@ -430,63 +363,42 @@ class Graticule extends Layer {
       //BUG - Incorrect conversion from LL to UTM in the SW corner of the 33V GZD will make
       // it think that it is in the 32V GZD.  Without manually setting it the algorithm will
       // create a second set of lines over Norway and leave Sweden blank.
-      if (gzd === "33V") {
+      if (gzd === '33V') {
         SW_CORNER_UTM = {
-          ZoneLetter: "V",
+          ZoneLetter: 'V',
           ZoneNumber: 33,
           Easting: 312900,
           Northing: 6210142,
         };
       }
 
-      const HEMISPHERE = this.map.getCenter().lat <= 0 ? "South" : "North";
+      const HEMISPHERE = this.map.getCenter().lat <= 0 ? 'South' : 'North';
 
       switch (HEMISPHERE) {
-        case "North":
-          this.processEastingsAndNorthings(
-            SW_CORNER_UTM,
-            SW_CORNER_UTM,
-            NE_CORNER_UTM,
-            SE_CORNER_UTM
-          );
+        case 'North':
+          this.processEastingsAndNorthings(SW_CORNER_UTM, SW_CORNER_UTM, NE_CORNER_UTM, SE_CORNER_UTM);
           break;
-        case "South":
-          this.processEastingsAndNorthings(
-            SW_CORNER_UTM,
-            NW_CORNER_UTM,
-            NE_CORNER_UTM,
-            NE_CORNER_UTM
-          );
+        case 'South':
+          this.processEastingsAndNorthings(SW_CORNER_UTM, NW_CORNER_UTM, NE_CORNER_UTM, NE_CORNER_UTM);
           break;
         default:
           break;
       }
     });
 
-    const MAP_BOUNDS = this.map
-      .getBounds()
-      .pad(this.getPaddingOnZoomLevel(this.map.getZoom()));
+    const MAP_BOUNDS = this.map.getBounds().pad(this.getPaddingOnZoomLevel(this.map.getZoom()));
     this.northingArray.forEach((northingElem) => {
       let northingGridsArray = [];
 
       this.eastingArray.forEach((eastingElem) => {
-        let intersection = this.processGridIntersection(
-          MAP_BOUNDS,
-          eastingElem,
-          northingElem
-        );
+        let intersection = this.processGridIntersection(MAP_BOUNDS, eastingElem, northingElem);
         if (intersection) {
           northingGridsArray.push(intersection);
         }
       });
 
       northingGridsArray.forEach((elem, index, array) => {
-        let COORDINATE_LL = utm.convertUtmToLatLng(
-          elem.easting,
-          elem.northing,
-          elem.zoneNumber,
-          elem.zoneLetter
-        );
+        let COORDINATE_LL = utm.convertUtmToLatLng(elem.easting, elem.northing, elem.zoneNumber, elem.zoneLetter);
 
         let COORDINATE_XY = this.map.latLngToContainerPoint({
           lat: COORDINATE_LL.lat,
@@ -498,7 +410,7 @@ class Graticule extends Layer {
         // specially.  For each point in 31V, we will traverse the grid horizontally in
         // order to get a second point to derive a line from. From there it will be expanded
         // to cover the entire GZD.
-        if (gzd === "31V") {
+        if (gzd === '31V') {
           this.handle31V(ctx, elem, COORDINATE_LL);
         } else {
           if (index === 0) {
@@ -511,19 +423,13 @@ class Graticule extends Layer {
               );
 
               // Get Lat/Long bounds for each GZD
-              const WEST_GZD_LONGITUDE = getGZD(gzd)["geometry"][
-                "coordinates"
-              ][0][NW_INDEX][LONGITUDE_INDEX];
+              const WEST_GZD_LONGITUDE = getGZD(gzd)['geometry']['coordinates'][0][NW_INDEX][LONGITUDE_INDEX];
 
               // If the first point is west of the GZD western boundary
               if (COORDINATE_LL.lng < WEST_GZD_LONGITUDE) {
                 let slope = getLineSlope(COORDINATE_LL, NEXT_COORDINATE_LL);
 
-                let adjustedLatitude = getAdjustedLatitude(
-                  slope,
-                  WEST_GZD_LONGITUDE,
-                  NEXT_COORDINATE_LL
-                );
+                let adjustedLatitude = getAdjustedLatitude(slope, WEST_GZD_LONGITUDE, NEXT_COORDINATE_LL);
 
                 COORDINATE_XY = this.map.latLngToContainerPoint({
                   lat: adjustedLatitude,
@@ -531,11 +437,7 @@ class Graticule extends Layer {
                 });
                 // If the first point is east of the GZD western boundary
               } else if (COORDINATE_LL.lng > WEST_GZD_LONGITUDE) {
-                let additionalPoint = connectToGzdBoundary(
-                  COORDINATE_LL,
-                  NEXT_COORDINATE_LL,
-                  "West"
-                );
+                let additionalPoint = connectToGzdBoundary(COORDINATE_LL, NEXT_COORDINATE_LL, 'West');
 
                 let cachedCoordinateXy = COORDINATE_XY; // Used to determine whether we actually display the label
 
@@ -545,56 +447,42 @@ class Graticule extends Layer {
                 });
 
                 // This is extra label text
-                let labelText = forward([
-                  additionalPoint.lng,
-                  additionalPoint.lat,
-                ]).match(MGRS_REGEX)[HK_INDEX];
+                let labelText = forward([additionalPoint.lng, additionalPoint.lat]).match(MGRS_REGEX)[HK_INDEX];
 
                 let labelWidth = ctx.measureText(labelText).width;
 
                 // If the label is wider than the zone it represents (with a scale factor), don't display
-                if (
-                  Math.abs(cachedCoordinateXy.x - COORDINATE_XY.x) / 1.5 >
-                  labelWidth
-                ) {
+                if (Math.abs(cachedCoordinateXy.x - COORDINATE_XY.x) / 1.5 > labelWidth) {
                   drawLabel(
                     ctx,
                     labelText,
                     this.options.fontColor,
                     this.options.color,
                     this.map.latLngToContainerPoint({
-                      lat:
-                        Math.abs(additionalPoint.lng - COORDINATE_LL.lng) / 2 +
-                        additionalPoint.lat,
+                      lat: Math.abs(additionalPoint.lng - COORDINATE_LL.lng) / 2 + additionalPoint.lat,
                       lng: (additionalPoint.lng + COORDINATE_LL.lng) / 2,
                     })
                   );
                 }
 
                 // Handle a special case in a GZD adjacent to the Norway special zones
-                if (labelText === "LT" && gzd === "32W") {
+                if (labelText === 'LT' && gzd === '32W') {
                   labelText = forward([
                     (additionalPoint.lng + COORDINATE_LL.lng) / 2,
-                    Math.abs(additionalPoint.lng - COORDINATE_LL.lng) / 2 -
-                      additionalPoint.lat,
+                    Math.abs(additionalPoint.lng - COORDINATE_LL.lng) / 2 - additionalPoint.lat,
                   ]).match(MGRS_REGEX)[HK_INDEX];
 
                   labelWidth = ctx.measureText(labelText).width;
 
                   // If the label is wider than the zone it represents (with a scale factor), don't display
-                  if (
-                    Math.abs(cachedCoordinateXy.x - COORDINATE_XY.x) / 1.5 >
-                    labelWidth
-                  ) {
+                  if (Math.abs(cachedCoordinateXy.x - COORDINATE_XY.x) / 1.5 > labelWidth) {
                     drawLabel(
                       ctx,
                       labelText,
                       this.options.fontColor,
                       this.options.color,
                       this.map.latLngToContainerPoint({
-                        lat:
-                          additionalPoint.lat -
-                          Math.abs(additionalPoint.lng - COORDINATE_LL.lng) / 2,
+                        lat: additionalPoint.lat - Math.abs(additionalPoint.lng - COORDINATE_LL.lng) / 2,
                         lng: (additionalPoint.lng + COORDINATE_LL.lng) / 2,
                       })
                     );
@@ -603,22 +491,15 @@ class Graticule extends Layer {
               }
 
               let labelCoordinateLl = utm.convertUtmToLatLng(
-                Math.floor(
-                  (northingGridsArray[index].easting +
-                    northingGridsArray[index + 1].easting) /
-                    2
-                ),
+                Math.floor((northingGridsArray[index].easting + northingGridsArray[index + 1].easting) / 2),
                 Math.floor(northingGridsArray[index].northing + 50000),
                 northingGridsArray[index].zoneNumber,
                 northingGridsArray[index].zoneLetter
               );
 
-              let labelText = forward([
-                labelCoordinateLl.lng,
-                labelCoordinateLl.lat,
-              ]).match(MGRS_REGEX)[HK_INDEX];
+              let labelText = forward([labelCoordinateLl.lng, labelCoordinateLl.lat]).match(MGRS_REGEX)[HK_INDEX];
 
-              if (!(labelText === "EM" && gzd === "32V")) {
+              if (!(labelText === 'EM' && gzd === '32V')) {
                 drawLabel(
                   ctx,
                   labelText,
@@ -631,12 +512,8 @@ class Graticule extends Layer {
                 );
               }
 
-              if (elem.zoneLetter === "N") {
-                this.handleEquatorLabels(
-                  ctx,
-                  northingGridsArray[index],
-                  northingGridsArray[index + 1]
-                );
+              if (elem.zoneLetter === 'N') {
+                this.handleEquatorLabels(ctx, northingGridsArray[index], northingGridsArray[index + 1]);
               }
             }
             ctx.beginPath();
@@ -645,9 +522,7 @@ class Graticule extends Layer {
           } else {
             // Last element in the northing grids array
             if (index === array.length - 1) {
-              const EAST_GZD_LONGITUDE = getGZD(gzd)["geometry"][
-                "coordinates"
-              ][0][NE_INDEX][LONGITUDE_INDEX];
+              const EAST_GZD_LONGITUDE = getGZD(gzd)['geometry']['coordinates'][0][NE_INDEX][LONGITUDE_INDEX];
               const PREV_COORDINATE_LL = utm.convertUtmToLatLng(
                 northingGridsArray[index - 1].easting,
                 northingGridsArray[index - 1].northing,
@@ -659,11 +534,7 @@ class Graticule extends Layer {
               if (COORDINATE_LL.lng > EAST_GZD_LONGITUDE) {
                 let slope = getLineSlope(COORDINATE_LL, PREV_COORDINATE_LL);
 
-                let adjustedLatitude = getAdjustedLatitude(
-                  slope,
-                  EAST_GZD_LONGITUDE,
-                  PREV_COORDINATE_LL
-                );
+                let adjustedLatitude = getAdjustedLatitude(slope, EAST_GZD_LONGITUDE, PREV_COORDINATE_LL);
 
                 COORDINATE_XY = this.map.latLngToContainerPoint({
                   lat: adjustedLatitude,
@@ -672,11 +543,7 @@ class Graticule extends Layer {
                 // The final point is to the west of the eastern GZD boundary, so another
                 // point needs to be made to account for the additional 100k zone
               } else if (COORDINATE_LL.lng <= EAST_GZD_LONGITUDE) {
-                let additionalPoint = connectToGzdBoundary(
-                  COORDINATE_LL,
-                  PREV_COORDINATE_LL,
-                  "East"
-                );
+                let additionalPoint = connectToGzdBoundary(COORDINATE_LL, PREV_COORDINATE_LL, 'East');
 
                 let cachedCoordinateXy = COORDINATE_XY; // Used to determine whether we actually display the label
 
@@ -686,27 +553,19 @@ class Graticule extends Layer {
                 });
 
                 // This is extra label text
-                let labelText = forward([
-                  COORDINATE_LL.lng,
-                  COORDINATE_LL.lat,
-                ]).match(MGRS_REGEX)[HK_INDEX];
+                let labelText = forward([COORDINATE_LL.lng, COORDINATE_LL.lat]).match(MGRS_REGEX)[HK_INDEX];
 
                 let labelWidth = ctx.measureText(labelText).width;
 
                 // If the label is wider than the zone it represents (with a scale factor), don't display
-                if (
-                  Math.abs(cachedCoordinateXy.x - COORDINATE_XY.x) / 1.5 >
-                  labelWidth
-                ) {
+                if (Math.abs(cachedCoordinateXy.x - COORDINATE_XY.x) / 1.5 > labelWidth) {
                   drawLabel(
                     ctx,
                     labelText,
                     this.options.fontColor,
                     this.options.color,
                     this.map.latLngToContainerPoint({
-                      lat:
-                        Math.abs(additionalPoint.lng - COORDINATE_LL.lng) / 2 +
-                        additionalPoint.lat,
+                      lat: Math.abs(additionalPoint.lng - COORDINATE_LL.lng) / 2 + additionalPoint.lat,
                       lng: (additionalPoint.lng + COORDINATE_LL.lng) / 2,
                     })
                   );
@@ -714,20 +573,13 @@ class Graticule extends Layer {
               }
 
               let labelCoordinateLl = utm.convertUtmToLatLng(
-                Math.floor(
-                  (northingGridsArray[index].easting +
-                    northingGridsArray[index - 1].easting) /
-                    2
-                ),
+                Math.floor((northingGridsArray[index].easting + northingGridsArray[index - 1].easting) / 2),
                 Math.floor(northingGridsArray[index].northing + 50000),
                 northingGridsArray[index].zoneNumber,
                 northingGridsArray[index].zoneLetter
               );
 
-              let labelText = forward([
-                labelCoordinateLl.lng,
-                labelCoordinateLl.lat,
-              ]).match(MGRS_REGEX)[HK_INDEX];
+              let labelText = forward([labelCoordinateLl.lng, labelCoordinateLl.lat]).match(MGRS_REGEX)[HK_INDEX];
 
               drawLabel(
                 ctx,
@@ -741,21 +593,14 @@ class Graticule extends Layer {
               );
             } else {
               let labelCoordinateLl = utm.convertUtmToLatLng(
-                Math.floor(
-                  (northingGridsArray[index].easting +
-                    northingGridsArray[index + 1].easting) /
-                    2
-                ),
+                Math.floor((northingGridsArray[index].easting + northingGridsArray[index + 1].easting) / 2),
                 Math.floor(northingGridsArray[index].northing + 50000),
                 northingGridsArray[index].zoneNumber,
                 northingGridsArray[index].zoneLetter
               );
 
-              let labelText = forward([
-                labelCoordinateLl.lng,
-                labelCoordinateLl.lat,
-              ]).match(MGRS_REGEX)[HK_INDEX];
-              if (!(labelText === "FM" && gzd === "32V")) {
+              let labelText = forward([labelCoordinateLl.lng, labelCoordinateLl.lat]).match(MGRS_REGEX)[HK_INDEX];
+              if (!(labelText === 'FM' && gzd === '32V')) {
                 drawLabel(
                   ctx,
                   labelText,
@@ -768,12 +613,8 @@ class Graticule extends Layer {
                 );
               }
 
-              if (elem.zoneLetter === "N") {
-                this.handleEquatorLabels(
-                  ctx,
-                  northingGridsArray[index],
-                  northingGridsArray[index + 1]
-                );
+              if (elem.zoneLetter === 'N') {
+                this.handleEquatorLabels(ctx, northingGridsArray[index], northingGridsArray[index + 1]);
               }
             }
             ctx.lineTo(COORDINATE_XY.x, COORDINATE_XY.y);
@@ -787,11 +628,7 @@ class Graticule extends Layer {
       let eastingGridsArray = [];
 
       this.northingArray.forEach((northingElem) => {
-        let intersection = this.processGridIntersection(
-          MAP_BOUNDS,
-          eastingElem,
-          northingElem
-        );
+        let intersection = this.processGridIntersection(MAP_BOUNDS, eastingElem, northingElem);
         if (intersection) {
           eastingGridsArray.push(intersection);
         }
@@ -802,12 +639,7 @@ class Graticule extends Layer {
           return;
         }
 
-        let COORDINATE_LL = utm.convertUtmToLatLng(
-          elem.easting,
-          elem.northing,
-          elem.zoneNumber,
-          elem.zoneLetter
-        );
+        let COORDINATE_LL = utm.convertUtmToLatLng(elem.easting, elem.northing, elem.zoneNumber, elem.zoneLetter);
 
         let COORDINATE_XY = this.map.latLngToContainerPoint({
           lat: COORDINATE_LL.lat,
@@ -816,9 +648,7 @@ class Graticule extends Layer {
 
         let gzd = elem.zoneNumber.toString() + elem.zoneLetter;
 
-        const SW_GZD_POINT = getGZD(gzd)["geometry"]["coordinates"][0][
-          SW_INDEX
-        ];
+        const SW_GZD_POINT = getGZD(gzd)['geometry']['coordinates'][0][SW_INDEX];
 
         // The first index in the array of northings
         if (index === 0) {
@@ -826,10 +656,7 @@ class Graticule extends Layer {
 
           // If the first northing coordinate is north of the south boundary of the GZD,
           // we need to extend a line to touch the bottom of the GZD
-          if (
-            COORDINATE_LL.lat > SW_GZD_POINT[LATITUDE_INDEX] &&
-            eastingGridsArray[index + 1]
-          ) {
+          if (COORDINATE_LL.lat > SW_GZD_POINT[LATITUDE_INDEX] && eastingGridsArray[index + 1]) {
             const NEXT_COORDINATE_LL = utm.convertUtmToLatLng(
               eastingGridsArray[index + 1].easting,
               eastingGridsArray[index + 1].northing,
@@ -837,11 +664,7 @@ class Graticule extends Layer {
               eastingGridsArray[index + 1].zoneLetter
             );
 
-            let adjustedPoint = connectToGzdBoundary(
-              COORDINATE_LL,
-              NEXT_COORDINATE_LL,
-              "South"
-            );
+            let adjustedPoint = connectToGzdBoundary(COORDINATE_LL, NEXT_COORDINATE_LL, 'South');
 
             COORDINATE_XY = this.map.latLngToContainerPoint({
               lat: adjustedPoint.lat,
@@ -851,9 +674,7 @@ class Graticule extends Layer {
           ctx.moveTo(COORDINATE_XY.x, COORDINATE_XY.y);
         } else {
           // Get Lat/Long bounds for each GZD
-          const NE_GZD_POINT = getGZD(gzd)["geometry"]["coordinates"][0][
-            NE_INDEX
-          ];
+          const NE_GZD_POINT = getGZD(gzd)['geometry']['coordinates'][0][NE_INDEX];
 
           const PREV_COORDINATE_LL = utm.convertUtmToLatLng(
             eastingGridsArray[index - 1].easting,
@@ -867,36 +688,21 @@ class Graticule extends Layer {
           // of the line with the previous point in the array and adjust the end point latitude
           // as if it were resting right on the GZD boundary.
           if (COORDINATE_LL.lng <= SW_GZD_POINT[LONGITUDE_INDEX]) {
-            COORDINATE_XY = this.getAdjustedXy(
-              slope,
-              SW_GZD_POINT[LONGITUDE_INDEX],
-              PREV_COORDINATE_LL
-            );
+            COORDINATE_XY = this.getAdjustedXy(slope, SW_GZD_POINT[LONGITUDE_INDEX], PREV_COORDINATE_LL);
             // If the value is outside of the GZD, then all subsequent ones will be too
             // This means they do not need to be displayed.  You can't break out of a
             // forEach loop, so using a boolean instead.
             shouldSkip = true;
           } else if (COORDINATE_LL.lng > NE_GZD_POINT[LONGITUDE_INDEX]) {
-            COORDINATE_XY = this.getAdjustedXy(
-              slope,
-              NE_GZD_POINT[LONGITUDE_INDEX],
-              PREV_COORDINATE_LL
-            );
+            COORDINATE_XY = this.getAdjustedXy(slope, NE_GZD_POINT[LONGITUDE_INDEX], PREV_COORDINATE_LL);
 
             shouldSkip = true;
           }
 
           ctx.lineTo(COORDINATE_XY.x, COORDINATE_XY.y);
           // Connect to the GZD northern boundary
-          if (
-            array.length - 1 === index &&
-            COORDINATE_LL.lat < NE_GZD_POINT[LATITUDE_INDEX]
-          ) {
-            let adjustedPoint = connectToGzdBoundary(
-              COORDINATE_LL,
-              PREV_COORDINATE_LL,
-              "North"
-            );
+          if (array.length - 1 === index && COORDINATE_LL.lat < NE_GZD_POINT[LATITUDE_INDEX]) {
+            let adjustedPoint = connectToGzdBoundary(COORDINATE_LL, PREV_COORDINATE_LL, 'North');
             COORDINATE_XY = this.map.latLngToContainerPoint({
               lat: adjustedPoint.lat,
               lng: adjustedPoint.lng,
@@ -913,11 +719,7 @@ class Graticule extends Layer {
   // Small wrapper function to get the adjusted XY coordinates for when a HK point
   // lies west/east of the GZD boundary
   getAdjustedXy(slope, boundaryPoint, coordinateLl) {
-    let adjustedLatitude = getAdjustedLatitude(
-      slope,
-      boundaryPoint,
-      coordinateLl
-    );
+    let adjustedLatitude = getAdjustedLatitude(slope, boundaryPoint, coordinateLl);
 
     let COORDINATE_XY = this.map.latLngToContainerPoint({
       lat: adjustedLatitude,
