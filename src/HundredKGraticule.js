@@ -8,7 +8,6 @@ import {
   getAdjustedLatitude,
   getAllVisibleGzds,
   getLineSlope,
-  latLngToCanvasPoint,
 } from "./CommonUtils";
 
 import { getGZD } from "gzd-utils";
@@ -192,7 +191,7 @@ class Graticule extends Layer {
 
   handle31VLabels(ctx, adjustedLl, coordinateLl) {
     const HALF_DEGREE = 0.5; // Approximate distance used to centre the label in the middle of the HK zone
-    const LABEL_XY = latLngToCanvasPoint(this.map, {
+    const LABEL_XY = this.map.latLngToContainerPoint({
       lat: (adjustedLl.lat + coordinateLl.lat) / 2 + HALF_DEGREE,
       lng: (adjustedLl.lng + coordinateLl.lng) / 2,
     });
@@ -236,7 +235,7 @@ class Graticule extends Layer {
       TEMP_POINT_LL
     );
 
-    const EAST_GZD_BOUNDARY_POINT = latLngToCanvasPoint(this.map, {
+    const EAST_GZD_BOUNDARY_POINT = this.map.latLngToContainerPoint({
       lat: ADJUSTED_EAST_LATITUDE,
       lng: EAST_GZD_LONGITUDE,
     });
@@ -248,7 +247,7 @@ class Graticule extends Layer {
       TEMP_POINT_LL
     );
 
-    const WEST_GZD_BOUNDARY_POINT = latLngToCanvasPoint(this.map, {
+    const WEST_GZD_BOUNDARY_POINT = this.map.latLngToContainerPoint({
       lat: ADJUSTED_WEST_LATITUDE,
       lng: WEST_GZD_LONGITUDE,
     });
@@ -369,7 +368,7 @@ class Graticule extends Layer {
       labelText,
       this.options.fontColor,
       this.options.color,
-      latLngToCanvasPoint(this.map, {
+      this.map.latLngToContainerPoint({
         lat: labelCoordinateLl.lat,
         lng: labelCoordinateLl.lng,
       })
@@ -489,7 +488,7 @@ class Graticule extends Layer {
           elem.zoneLetter
         );
 
-        let COORDINATE_XY = latLngToCanvasPoint(this.map, {
+        let COORDINATE_XY = this.map.latLngToContainerPoint({
           lat: COORDINATE_LL.lat,
           lng: COORDINATE_LL.lng,
         });
@@ -526,7 +525,7 @@ class Graticule extends Layer {
                   NEXT_COORDINATE_LL
                 );
 
-                COORDINATE_XY = latLngToCanvasPoint(this.map, {
+                COORDINATE_XY = this.map.latLngToContainerPoint({
                   lat: adjustedLatitude,
                   lng: WEST_GZD_LONGITUDE,
                 });
@@ -540,7 +539,7 @@ class Graticule extends Layer {
 
                 let cachedCoordinateXy = COORDINATE_XY; // Used to determine whether we actually display the label
 
-                COORDINATE_XY = latLngToCanvasPoint(this.map, {
+                COORDINATE_XY = this.map.latLngToContainerPoint({
                   lat: additionalPoint.lat,
                   lng: additionalPoint.lng,
                 });
@@ -563,7 +562,7 @@ class Graticule extends Layer {
                     labelText,
                     this.options.fontColor,
                     this.options.color,
-                    latLngToCanvasPoint(this.map, {
+                    this.map.latLngToContainerPoint({
                       lat:
                         Math.abs(additionalPoint.lng - COORDINATE_LL.lng) / 2 +
                         additionalPoint.lat,
@@ -592,7 +591,7 @@ class Graticule extends Layer {
                       labelText,
                       this.options.fontColor,
                       this.options.color,
-                      latLngToCanvasPoint(this.map, {
+                      this.map.latLngToContainerPoint({
                         lat:
                           additionalPoint.lat -
                           Math.abs(additionalPoint.lng - COORDINATE_LL.lng) / 2,
@@ -625,7 +624,7 @@ class Graticule extends Layer {
                   labelText,
                   this.options.fontColor,
                   this.options.color,
-                  latLngToCanvasPoint(this.map, {
+                  this.map.latLngToContainerPoint({
                     lat: labelCoordinateLl.lat,
                     lng: labelCoordinateLl.lng,
                   })
@@ -666,7 +665,7 @@ class Graticule extends Layer {
                   PREV_COORDINATE_LL
                 );
 
-                COORDINATE_XY = latLngToCanvasPoint(this.map, {
+                COORDINATE_XY = this.map.latLngToContainerPoint({
                   lat: adjustedLatitude,
                   lng: EAST_GZD_LONGITUDE,
                 });
@@ -681,7 +680,7 @@ class Graticule extends Layer {
 
                 let cachedCoordinateXy = COORDINATE_XY; // Used to determine whether we actually display the label
 
-                COORDINATE_XY = latLngToCanvasPoint(this.map, {
+                COORDINATE_XY = this.map.latLngToContainerPoint({
                   lat: additionalPoint.lat,
                   lng: additionalPoint.lng,
                 });
@@ -704,7 +703,7 @@ class Graticule extends Layer {
                     labelText,
                     this.options.fontColor,
                     this.options.color,
-                    latLngToCanvasPoint(this.map, {
+                    this.map.latLngToContainerPoint({
                       lat:
                         Math.abs(additionalPoint.lng - COORDINATE_LL.lng) / 2 +
                         additionalPoint.lat,
@@ -735,7 +734,7 @@ class Graticule extends Layer {
                 labelText,
                 this.options.fontColor,
                 this.options.color,
-                latLngToCanvasPoint(this.map, {
+                this.map.latLngToContainerPoint({
                   lat: labelCoordinateLl.lat,
                   lng: labelCoordinateLl.lng,
                 })
@@ -762,7 +761,7 @@ class Graticule extends Layer {
                   labelText,
                   this.options.fontColor,
                   this.options.color,
-                  latLngToCanvasPoint(this.map, {
+                  this.map.latLngToContainerPoint({
                     lat: labelCoordinateLl.lat,
                     lng: labelCoordinateLl.lng,
                   })
@@ -810,7 +809,7 @@ class Graticule extends Layer {
           elem.zoneLetter
         );
 
-        let COORDINATE_XY = latLngToCanvasPoint(this.map, {
+        let COORDINATE_XY = this.map.latLngToContainerPoint({
           lat: COORDINATE_LL.lat,
           lng: COORDINATE_LL.lng,
         });
@@ -844,7 +843,7 @@ class Graticule extends Layer {
               "South"
             );
 
-            COORDINATE_XY = latLngToCanvasPoint(this.map, {
+            COORDINATE_XY = this.map.latLngToContainerPoint({
               lat: adjustedPoint.lat,
               lng: adjustedPoint.lng,
             });
@@ -898,7 +897,7 @@ class Graticule extends Layer {
               PREV_COORDINATE_LL,
               "North"
             );
-            COORDINATE_XY = latLngToCanvasPoint(this.map, {
+            COORDINATE_XY = this.map.latLngToContainerPoint({
               lat: adjustedPoint.lat,
               lng: adjustedPoint.lng,
             });
@@ -920,7 +919,7 @@ class Graticule extends Layer {
       coordinateLl
     );
 
-    let COORDINATE_XY = latLngToCanvasPoint(this.map, {
+    let COORDINATE_XY = this.map.latLngToContainerPoint({
       lat: adjustedLatitude,
       lng: boundaryPoint,
     });

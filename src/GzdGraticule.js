@@ -1,7 +1,7 @@
 import { Layer } from "leaflet";
 import { useMap } from "react-leaflet";
 import { forward } from "mgrs";
-import { drawLabel, latLngToCanvasPoint } from "./CommonUtils";
+import { drawLabel } from "./CommonUtils";
 
 const MGRS_REGEX = /([0-9]+[A-Z])([A-Z]{2})(\d+)/;
 const GZD_INDEX = 1;
@@ -177,9 +177,12 @@ class Graticule extends Layer {
   }
 
   drawLatitudeLine(ctx, tick, lngLeft, lngRight) {
-    const LEFT_END = latLngToCanvasPoint(this.map, { lat: tick, lng: lngLeft });
+    const LEFT_END = this.map.latLngToContainerPoint({
+      lat: tick,
+      lng: lngLeft,
+    });
 
-    const RIGHT_END = latLngToCanvasPoint(this.map, {
+    const RIGHT_END = this.map.latLngToContainerPoint({
       lat: tick,
       lng: lngRight,
     });
@@ -199,12 +202,12 @@ class Graticule extends Layer {
       latBottom = -80; // Ensure GZD vertical lines do not extend into the antarctic
     }
 
-    const CANVAS_TOP = latLngToCanvasPoint(this.map, {
+    const CANVAS_TOP = this.map.latLngToContainerPoint({
       lat: latTop,
       lng: tick,
     });
 
-    const CANVAS_BOTTOM = latLngToCanvasPoint(this.map, {
+    const CANVAS_BOTTOM = this.map.latLngToContainerPoint({
       lat: latBottom,
       lng: tick,
     });
@@ -218,22 +221,22 @@ class Graticule extends Layer {
       const BOTTOM_OF_V_SERIES_GZD = 56;
       const RIGHT_OF_31_SERIES_GZD = 3;
 
-      const RIGHT_TOP_OF_GZD = latLngToCanvasPoint(this.map, {
+      const RIGHT_TOP_OF_GZD = this.map.latLngToContainerPoint({
         lat: TOP_OF_V_SERIES_GZD,
         lng: tick,
       });
 
-      const LEFT_TOP_OF_GZD = latLngToCanvasPoint(this.map, {
+      const LEFT_TOP_OF_GZD = this.map.latLngToContainerPoint({
         lat: TOP_OF_V_SERIES_GZD,
         lng: RIGHT_OF_31_SERIES_GZD,
       });
 
-      const LEFT_BOTTOM_OF_GZD = latLngToCanvasPoint(this.map, {
+      const LEFT_BOTTOM_OF_GZD = this.map.latLngToContainerPoint({
         lat: BOTTOM_OF_V_SERIES_GZD,
         lng: RIGHT_OF_31_SERIES_GZD,
       });
 
-      const RIGHT_BOTTOM_OF_GZD = latLngToCanvasPoint(this.map, {
+      const RIGHT_BOTTOM_OF_GZD = this.map.latLngToContainerPoint({
         lat: BOTTOM_OF_V_SERIES_GZD,
         lng: tick,
       });
@@ -241,7 +244,7 @@ class Graticule extends Layer {
         // Top segment only
         // Do not draw through Svalbard
         if (latTop > TOP_OF_W_SERIES_GZD) {
-          const TOP_LEFT_OF_32_SERIES_GZD = latLngToCanvasPoint(this.map, {
+          const TOP_LEFT_OF_32_SERIES_GZD = this.map.latLngToContainerPoint({
             lat: TOP_OF_W_SERIES_GZD,
             lng: tick,
           });
@@ -274,7 +277,7 @@ class Graticule extends Layer {
       ) {
         // Do not draw through Svalbard
         if (latTop > TOP_OF_W_SERIES_GZD) {
-          const TOP_LEFT_OF_32_SERIES_GZD = latLngToCanvasPoint(this.map, {
+          const TOP_LEFT_OF_32_SERIES_GZD = this.map.latLngToContainerPoint({
             lat: TOP_OF_W_SERIES_GZD,
             lng: tick,
           });
@@ -304,20 +307,20 @@ class Graticule extends Layer {
     } else if (tick === 12) {
       if (latTop > TOP_OF_W_SERIES_GZD && latTop <= 84) {
         // Handle Svalbard
-        const TOP_LEFT_OF_33X_GZD = latLngToCanvasPoint(this.map, {
+        const TOP_LEFT_OF_33X_GZD = this.map.latLngToContainerPoint({
           lat: latTop,
           lng: 9,
         });
         ctx.moveTo(TOP_LEFT_OF_33X_GZD.x, TOP_LEFT_OF_33X_GZD.y);
 
-        const BOTTOM_LEFT_OF_33X_GZD = latLngToCanvasPoint(this.map, {
+        const BOTTOM_LEFT_OF_33X_GZD = this.map.latLngToContainerPoint({
           lat: TOP_OF_W_SERIES_GZD,
           lng: 9,
         });
 
         ctx.lineTo(BOTTOM_LEFT_OF_33X_GZD.x, BOTTOM_LEFT_OF_33X_GZD.y);
 
-        const TOP_RIGHT_OF_32W_GZD = latLngToCanvasPoint(this.map, {
+        const TOP_RIGHT_OF_32W_GZD = this.map.latLngToContainerPoint({
           lat: TOP_OF_W_SERIES_GZD,
           lng: tick,
         });
@@ -333,7 +336,7 @@ class Graticule extends Layer {
     } else if (tick === 18) {
       // Do not draw through Svalbard
       if (latTop > TOP_OF_W_SERIES_GZD) {
-        const TOP_LEFT_OF_34_SERIES_GZD = latLngToCanvasPoint(this.map, {
+        const TOP_LEFT_OF_34_SERIES_GZD = this.map.latLngToContainerPoint({
           lat: TOP_OF_W_SERIES_GZD,
           lng: tick,
         });
@@ -345,20 +348,20 @@ class Graticule extends Layer {
     } else if (tick === 24) {
       if (latTop > TOP_OF_W_SERIES_GZD && latTop <= 84) {
         // Handle Svalbard
-        const TOP_LEFT_OF_35X_GZD = latLngToCanvasPoint(this.map, {
+        const TOP_LEFT_OF_35X_GZD = this.map.latLngToContainerPoint({
           lat: latTop,
           lng: 21,
         });
         ctx.moveTo(TOP_LEFT_OF_35X_GZD.x, TOP_LEFT_OF_35X_GZD.y);
 
-        const BOTTOM_LEFT_OF_35X_GZD = latLngToCanvasPoint(this.map, {
+        const BOTTOM_LEFT_OF_35X_GZD = this.map.latLngToContainerPoint({
           lat: TOP_OF_W_SERIES_GZD,
           lng: 21,
         });
 
         ctx.lineTo(BOTTOM_LEFT_OF_35X_GZD.x, BOTTOM_LEFT_OF_35X_GZD.y);
 
-        const TOP_RIGHT_OF_34W_GZD = latLngToCanvasPoint(this.map, {
+        const TOP_RIGHT_OF_34W_GZD = this.map.latLngToContainerPoint({
           lat: TOP_OF_W_SERIES_GZD,
           lng: tick,
         });
@@ -374,7 +377,7 @@ class Graticule extends Layer {
     } else if (tick === 30) {
       // Do not draw through Svalbard
       if (latTop > TOP_OF_W_SERIES_GZD) {
-        const TOP_LEFT_OF_35_SERIES_GZD = latLngToCanvasPoint(this.map, {
+        const TOP_LEFT_OF_35_SERIES_GZD = this.map.latLngToContainerPoint({
           lat: TOP_OF_W_SERIES_GZD,
           lng: tick,
         });
@@ -386,20 +389,20 @@ class Graticule extends Layer {
     } else if (tick === 36) {
       if (latTop > TOP_OF_W_SERIES_GZD && latTop <= 84) {
         // Handle Svalbard
-        const TOP_LEFT_OF_37X_GZD = latLngToCanvasPoint(this.map, {
+        const TOP_LEFT_OF_37X_GZD = this.map.latLngToContainerPoint({
           lat: latTop,
           lng: 33,
         });
         ctx.moveTo(TOP_LEFT_OF_37X_GZD.x, TOP_LEFT_OF_37X_GZD.y);
 
-        const BOTTOM_LEFT_OF_37X_GZD = latLngToCanvasPoint(this.map, {
+        const BOTTOM_LEFT_OF_37X_GZD = this.map.latLngToContainerPoint({
           lat: TOP_OF_W_SERIES_GZD,
           lng: 33,
         });
 
         ctx.lineTo(BOTTOM_LEFT_OF_37X_GZD.x, BOTTOM_LEFT_OF_37X_GZD.y);
 
-        const TOP_RIGHT_OF_36W_GZD = latLngToCanvasPoint(this.map, {
+        const TOP_RIGHT_OF_36W_GZD = this.map.latLngToContainerPoint({
           lat: TOP_OF_W_SERIES_GZD,
           lng: tick,
         });
@@ -478,7 +481,7 @@ class Graticule extends Layer {
         !(gzdLabel === "35X" && longitude === 18) &&
         !(gzdLabel === "37X" && longitude === 30)
       ) {
-        const LABEL_XY = latLngToCanvasPoint(this.map, {
+        const LABEL_XY = this.map.latLngToContainerPoint({
           lat: labelLatitude,
           lng: labelLongitude,
         });

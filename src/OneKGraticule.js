@@ -4,7 +4,6 @@ import {
   connectToGzdBoundary,
   drawLabel,
   getAllVisibleGzds,
-  latLngToCanvasPoint,
 } from "./CommonUtils";
 import { getGZD } from "gzd-utils";
 import { forward } from "mgrs";
@@ -328,8 +327,7 @@ class Graticule extends Layer {
 
           let gridIntersectionXy;
           if (gridIntersectionLl) {
-            gridIntersectionXy = latLngToCanvasPoint(
-              this.map,
+            gridIntersectionXy = this.map.latLngToContainerPoint(
               gridIntersectionLl
             );
           } else {
@@ -358,8 +356,7 @@ class Graticule extends Layer {
                 "South"
               );
 
-              gridIntersectionXy = latLngToCanvasPoint(
-                this.map,
+              gridIntersectionXy = this.map.latLngToContainerPoint(
                 gridIntersectionLl
               );
             }
@@ -379,7 +376,7 @@ class Graticule extends Layer {
 
         if (gridLabelLl.lng > GZD_WEST_BOUNDARY) {
           try {
-            let gridLabelXy = latLngToCanvasPoint(this.map, {
+            let gridLabelXy = this.map.latLngToContainerPoint({
               lat: effectiveSouthGzdBoundary,
               lng: gridLabelLl.lng,
             });
@@ -403,8 +400,7 @@ class Graticule extends Layer {
             zoneLetter
           );
 
-          let gridIntersectionXy = latLngToCanvasPoint(
-            this.map,
+          let gridIntersectionXy = this.map.latLngToContainerPoint(
             gridIntersectionLl
           );
           if (eastingIndex === 0) {
@@ -423,8 +419,7 @@ class Graticule extends Layer {
                   nextIntersectionLl,
                   "East"
                 );
-                gridIntersectionXy = latLngToCanvasPoint(
-                  this.map,
+                gridIntersectionXy = this.map.latLngToContainerPoint(
                   gridIntersectionLl
                 );
               } catch (e) {
@@ -447,8 +442,7 @@ class Graticule extends Layer {
                 "East"
               );
 
-              gridIntersectionXy = latLngToCanvasPoint(
-                this.map,
+              gridIntersectionXy = this.map.latLngToContainerPoint(
                 gzdIntersectionLl
               );
 
@@ -469,8 +463,7 @@ class Graticule extends Layer {
                 "East"
               );
 
-              gridIntersectionXy = latLngToCanvasPoint(
-                this.map,
+              gridIntersectionXy = this.map.latLngToContainerPoint(
                 gzdIntersectionLl
               );
 
@@ -490,7 +483,7 @@ class Graticule extends Layer {
             zoneNumber,
             zoneLetter
           );
-          let gridLabelXy = latLngToCanvasPoint(this.map, {
+          let gridLabelXy = this.map.latLngToContainerPoint({
             lat: gridLabelLl.lat,
             lng: effectiveEastGzdBoundary,
           });
