@@ -85,8 +85,6 @@ class Graticule extends Layer {
     const MAP_SIZE = this.map.getSize();
     const MAP_LEFT_TOP = this.map.containerPointToLayerPoint([0, 0]);
 
-    this.canvas._leaflet_pos = MAP_LEFT_TOP;
-
     this.canvas.style['transform'] = `translate3d(${MAP_LEFT_TOP.x}px,${MAP_LEFT_TOP.y}px,0)`;
 
     this.canvas.width = MAP_SIZE.x;
@@ -344,35 +342,20 @@ class Graticule extends Layer {
             }
             ctx.moveTo(gridIntersectionXy.x, gridIntersectionXy.y);
           } else if (eastingIndex === eastArr.length - 1) {
-            if (gridIntersectionLl.lng < GZD_EAST_BOUNDARY) {
-              let previousIntersectionLl = utm.convertUtmToLatLng(
-                eastArr[eastingIndex - 1],
-                northingElem,
-                zoneNumber,
-                zoneLetter
-              );
+            let previousIntersectionLl = utm.convertUtmToLatLng(
+              eastArr[eastingIndex - 1],
+              northingElem,
+              zoneNumber,
+              zoneLetter
+            );
+            let gzdIntersectionLl =
+              gridIntersectionLl.lng < GZD_EAST_BOUNDARY
+                ? connectToGzdBoundary(gridIntersectionLl, previousIntersectionLl, 'East')
+                : connectToGzdBoundary(gridIntersectionLl, previousIntersectionLl, 'West');
 
-              let gzdIntersectionLl = connectToGzdBoundary(gridIntersectionLl, previousIntersectionLl, 'East');
+            gridIntersectionXy = this.map.latLngToContainerPoint(gzdIntersectionLl);
 
-              gridIntersectionXy = this.map.latLngToContainerPoint(gzdIntersectionLl);
-
-              ctx.lineTo(gridIntersectionXy.x, gridIntersectionXy.y);
-
-              // We need to truncate the line to stop at the GZD boundary
-            } else if (gridIntersectionLl.lng > GZD_EAST_BOUNDARY) {
-              let previousIntersectionLl = utm.convertUtmToLatLng(
-                eastArr[eastingIndex - 1],
-                northArr[northingIndex],
-                zoneNumber,
-                zoneLetter
-              );
-
-              let gzdIntersectionLl = connectToGzdBoundary(previousIntersectionLl, gridIntersectionLl, 'East');
-
-              gridIntersectionXy = this.map.latLngToContainerPoint(gzdIntersectionLl);
-
-              ctx.lineTo(gridIntersectionXy.x, gridIntersectionXy.y);
-            }
+            ctx.lineTo(gridIntersectionXy.x, gridIntersectionXy.y);
           } else {
             ctx.lineTo(gridIntersectionXy.x, gridIntersectionXy.y);
           }

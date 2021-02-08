@@ -93,8 +93,6 @@ class Graticule extends Layer {
     const MAP_SIZE = this.map.getSize();
     const MAP_TOP_LEFT = this.map.containerPointToLayerPoint([0, 0]);
 
-    this.canvas._leaflet_pos = MAP_TOP_LEFT;
-
     this.canvas.style['transform'] = `translate3d(${MAP_TOP_LEFT.x}px,${MAP_TOP_LEFT.y}px,0)`;
 
     this.canvas.width = MAP_SIZE.x;
@@ -233,14 +231,15 @@ class Graticule extends Layer {
     northingIterator = Math.ceil(northingIterator / this.HUNDRED_K_GRID_INTERVAL) * this.HUNDRED_K_GRID_INTERVAL;
     eastingIterator = Math.ceil(eastingIterator / this.HUNDRED_K_GRID_INTERVAL) * this.HUNDRED_K_GRID_INTERVAL;
 
-    if (startingNorthingUtm.ZoneNumber + startingNorthingUtm.ZoneLetter.toString() === '31W') {
+    // HACK - Workaround for conversion error
+    if (startingNorthingUtm.ZoneNumber.toString() + startingNorthingUtm.ZoneLetter === '31W') {
       northingIterator = 7100000; // Round down for special case
     }
 
     // Find all northing grids that are divisible by 100,000
     if (startingNorthingUtm.ZoneLetter === finalNorthingUtm.ZoneLetter) {
       while (northingIterator <= finalNorthingUtm.Northing) {
-        // This loop basically checks to make sure the easting grid is divisible by 100K
+        // This loop checks to make sure the easting grid is divisible by 100K
         if (northingIterator % this.HUNDRED_K_GRID_INTERVAL === 0) {
           this.northingArray.push({
             northing: northingIterator,
@@ -339,11 +338,22 @@ class Graticule extends Layer {
 
       const BUFFER = 0.00001; // HACK - This buffer shrinks the UTM.  Very magical.
 
-      let SW_CORNER_UTM = utm.convertLatLngToUtm(
-        SW_CORNER_LL[LATITUDE_INDEX] + BUFFER,
-        SW_CORNER_LL[LONGITUDE_INDEX] + BUFFER,
-        UTM_RESOLUTION
-      );
+      //BUG - Incorrect conversion from LL to UTM in the SW corner of the 33V GZD will make
+      // it think that it is in the 32V GZD.  Without manually setting it the algorithm will
+      // create a second set of lines over Norway and leave Sweden blank.
+      const SW_CORNER_UTM =
+        gzd === '33V'
+          ? {
+              ZoneLetter: 'V',
+              ZoneNumber: 33,
+              Easting: 312900,
+              Northing: 6210142,
+            }
+          : utm.convertLatLngToUtm(
+              SW_CORNER_LL[LATITUDE_INDEX] + BUFFER,
+              SW_CORNER_LL[LONGITUDE_INDEX] + BUFFER,
+              UTM_RESOLUTION
+            );
       const NW_CORNER_UTM = utm.convertLatLngToUtm(
         NW_CORNER_LL[LATITUDE_INDEX] - BUFFER,
         NW_CORNER_LL[LONGITUDE_INDEX] + BUFFER,
@@ -359,18 +369,6 @@ class Graticule extends Layer {
         SE_CORNER_LL[LONGITUDE_INDEX] - BUFFER,
         UTM_RESOLUTION
       );
-
-      //BUG - Incorrect conversion from LL to UTM in the SW corner of the 33V GZD will make
-      // it think that it is in the 32V GZD.  Without manually setting it the algorithm will
-      // create a second set of lines over Norway and leave Sweden blank.
-      if (gzd === '33V') {
-        SW_CORNER_UTM = {
-          ZoneLetter: 'V',
-          ZoneNumber: 33,
-          Easting: 312900,
-          Northing: 6210142,
-        };
-      }
 
       const HEMISPHERE = this.map.getCenter().lat <= 0 ? 'South' : 'North';
 
@@ -414,12 +412,12 @@ class Graticule extends Layer {
           this.handle31V(ctx, elem, COORDINATE_LL);
         } else {
           if (index === 0) {
-            if (northingGridsArray[index + 1]) {
+            if (northingGridsArray[index]) {
               const NEXT_COORDINATE_LL = utm.convertUtmToLatLng(
-                northingGridsArray[index + 1].easting,
-                northingGridsArray[index + 1].northing,
-                northingGridsArray[index + 1].zoneNumber,
-                northingGridsArray[index + 1].zoneLetter
+                northingGridsArray[index].easting,
+                northingGridsArray[index].northing,
+                northingGridsArray[index].zoneNumber,
+                northingGridsArray[index].zoneLetter
               );
 
               // Get Lat/Long bounds for each GZD

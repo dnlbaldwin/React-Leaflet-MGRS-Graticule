@@ -63,8 +63,6 @@ class Graticule extends Layer {
     const MAP_SIZE = this.map.getSize();
     const MAP_LEFT_TOP = this.map.containerPointToLayerPoint([0, 0]);
 
-    this.canvas._leaflet_pos = MAP_LEFT_TOP;
-
     this.canvas.style['transform'] = `translate3d(${MAP_LEFT_TOP.x}px,${MAP_LEFT_TOP.y}px,0)`;
 
     this.canvas.width = MAP_SIZE.x;
