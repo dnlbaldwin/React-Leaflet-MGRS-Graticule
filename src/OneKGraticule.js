@@ -4,6 +4,8 @@ import { connectToGzdBoundary, drawLabel, getAllVisibleGzds } from './CommonUtil
 import { getGZD } from 'gzd-utils';
 import { forward } from 'mgrs';
 
+import { utmLl, llUtm, LLtoUTM, UTMtoLL } from './Coordinates';
+
 // The following indicies are used to indentify coordinates returned from gzd-utils
 const SW_INDEX = 0;
 const NW_INDEX = 1;
@@ -46,6 +48,7 @@ class Graticule extends Layer {
       font: '14px Courier New',
       fontColor: '#FFF',
       dashArray: [],
+      hundredKMinZoom: 6,
       tenKMinZoom: 9,
       oneKMinZoom: 12,
       eastingBottom: true, // Display the eastings at the bottom the screen, else display at top
@@ -94,6 +97,8 @@ class Graticule extends Layer {
       this.mgrsGridInterval = 1000; //1k resolution
     } else if (this.map.getZoom() > this.options.tenKMinZoom) {
       this.mgrsGridInterval = 10000; //10k resolution
+    } else if (this.map.getZoom() > this.options.hundredKMinZoom) {
+      this.mgrsGridInterval = 100000; //100k resolution
     } else {
       this.mgrsGridInterval = null;
     }
@@ -166,7 +171,7 @@ class Graticule extends Layer {
       return;
     }
 
-    if (this.map.getZoom() < this.options.tenKMinZoom) {
+    if (this.map.getZoom() < this.options.hundredKMinZoom) {
       return;
     }
 
@@ -183,6 +188,7 @@ class Graticule extends Layer {
 
     VISIBLE_GZDS.forEach((gzd, gzdIndex, visibleGridArr) => {
       const GZD_OBJECT = getGZD(gzd);
+
       const GZD_WEST_BOUNDARY = GZD_OBJECT['geometry']['coordinates'][0][NW_INDEX][LONGITUDE_INDEX];
       const GZD_EAST_BOUNDARY = GZD_OBJECT['geometry']['coordinates'][0][NE_INDEX][LONGITUDE_INDEX];
       const GZD_NORTH_BOUNDARY = GZD_OBJECT['geometry']['coordinates'][0][NW_INDEX][LATITUDE_INDEX];
@@ -264,7 +270,6 @@ class Graticule extends Layer {
             );
             gridIntersectionLl = connectToGzdBoundary(gridIntersectionLl, nextIntersectionLl, 'North');
           }
-
           let gridIntersectionXy;
           if (gridIntersectionLl) {
             gridIntersectionXy = this.map.latLngToContainerPoint(gridIntersectionLl);
