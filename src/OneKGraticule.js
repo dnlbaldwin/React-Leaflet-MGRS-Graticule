@@ -1,10 +1,8 @@
+import { utmToLl, llToUtm, llToMgrs } from './Coordinates';
 import { Layer } from 'leaflet';
 import { useMap } from 'react-leaflet';
 import { connectToGzdBoundary, drawLabel, getAllVisibleGzds } from './CommonUtils';
 import { getGZD } from 'gzd-utils';
-import { forward } from 'mgrs';
-
-import { utmLl, llUtm, LLtoUTM, UTMtoLL } from './Coordinates';
 
 // The following indicies are used to indentify coordinates returned from gzd-utils
 const SW_INDEX = 0;
@@ -139,19 +137,19 @@ class Graticule extends Layer {
   }
 
   getVizGrids() {
-    const NW_BOUND_MGRS = forward(
+    const NW_BOUND_MGRS = llToMgrs(
       [this.map.getBounds().getNorthWest()['lng'], this.map.getBounds().getNorthWest()['lat']],
       1
     );
-    const NE_BOUND_MGRS = forward(
+    const NE_BOUND_MGRS = llToMgrs(
       [this.map.getBounds().getNorthEast()['lng'], this.map.getBounds().getNorthEast()['lat']],
       1
     );
-    const SE_BOUND_MGRS = forward(
+    const SE_BOUND_MGRS = llToMgrs(
       [this.map.getBounds().getSouthEast()['lng'], this.map.getBounds().getSouthEast()['lat']],
       1
     );
-    const SW_BOUND_MGRS = forward(
+    const SW_BOUND_MGRS = llToMgrs(
       [this.map.getBounds().getSouthWest()['lng'], this.map.getBounds().getSouthWest()['lat']],
       1
     );
@@ -187,6 +185,7 @@ class Graticule extends Layer {
     const MAP_BOUNDS = this.map.getBounds();
 
     VISIBLE_GZDS.forEach((gzd, gzdIndex, visibleGridArr) => {
+      // TODO - New LLtoUTM will give GZD long bands that are not valid (<1 and >60)
       const GZD_OBJECT = getGZD(gzd);
 
       const GZD_WEST_BOUNDARY = GZD_OBJECT['geometry']['coordinates'][0][NW_INDEX][LONGITUDE_INDEX];
@@ -194,43 +193,32 @@ class Graticule extends Layer {
       const GZD_NORTH_BOUNDARY = GZD_OBJECT['geometry']['coordinates'][0][NW_INDEX][LATITUDE_INDEX];
       const GZD_SOUTH_BOUNDARY = GZD_OBJECT['geometry']['coordinates'][0][SW_INDEX][LATITUDE_INDEX];
 
+      // If drawing HK grids, just draw the entire GZD regardless
       let effectiveWestGzdBoundary =
-        GZD_WEST_BOUNDARY < MAP_BOUNDS.getWest() ? MAP_BOUNDS.getWest() : GZD_WEST_BOUNDARY;
+        GZD_WEST_BOUNDARY < MAP_BOUNDS.getWest() && this.mgrsGridInterval !== 100000
+          ? MAP_BOUNDS.getWest()
+          : GZD_WEST_BOUNDARY;
       let effectiveEastGzdBoundary =
-        GZD_EAST_BOUNDARY > MAP_BOUNDS.getEast() ? MAP_BOUNDS.getEast() : GZD_EAST_BOUNDARY;
+        GZD_EAST_BOUNDARY > MAP_BOUNDS.getEast() && this.mgrsGridInterval !== 100000
+          ? MAP_BOUNDS.getEast()
+          : GZD_EAST_BOUNDARY;
       let effectiveWNorthGzdBoundary =
         GZD_NORTH_BOUNDARY > MAP_BOUNDS.getNorth() ? MAP_BOUNDS.getNorth() : GZD_NORTH_BOUNDARY;
       let effectiveSouthGzdBoundary =
         GZD_SOUTH_BOUNDARY < MAP_BOUNDS.getSouth() ? MAP_BOUNDS.getSouth() : GZD_SOUTH_BOUNDARY;
 
       const BUFFER = 0.00001;
-      const SW_CORNER_UTM = utm.convertLatLngToUtm(
-        effectiveSouthGzdBoundary + BUFFER,
-        effectiveWestGzdBoundary + BUFFER,
-        0
-      );
-      const SE_CORNER_UTM = utm.convertLatLngToUtm(
-        effectiveSouthGzdBoundary + BUFFER,
-        effectiveEastGzdBoundary - BUFFER,
-        0
-      );
-      const NW_CORNER_UTM = utm.convertLatLngToUtm(
-        effectiveWNorthGzdBoundary - BUFFER,
-        effectiveWestGzdBoundary + BUFFER,
-        0
-      );
-      const NE_CORNER_UTM = utm.convertLatLngToUtm(
-        effectiveWNorthGzdBoundary - BUFFER,
-        effectiveEastGzdBoundary - BUFFER,
-        0
-      );
+      const SW_CORNER_UTM = llToUtm(effectiveSouthGzdBoundary + BUFFER, effectiveWestGzdBoundary + BUFFER);
+      const SE_CORNER_UTM = llToUtm(effectiveSouthGzdBoundary + BUFFER, effectiveEastGzdBoundary - BUFFER);
+      const NW_CORNER_UTM = llToUtm(effectiveWNorthGzdBoundary - BUFFER, effectiveWestGzdBoundary + BUFFER);
+      const NE_CORNER_UTM = llToUtm(effectiveWNorthGzdBoundary - BUFFER, effectiveEastGzdBoundary - BUFFER);
 
       // Draw easting lines
-      let startingEasting = SW_CORNER_UTM.Easting;
-      let finalEasting = SE_CORNER_UTM.Easting;
+      let startingEasting = SW_CORNER_UTM.easting;
+      let finalEasting = SE_CORNER_UTM.easting;
 
-      let startingNorthing = SW_CORNER_UTM.Northing;
-      let finalNorthing = NE_CORNER_UTM.Northing;
+      let startingNorthing = SW_CORNER_UTM.northing;
+      let finalNorthing = NE_CORNER_UTM.northing;
 
       startingEasting = Math.floor(startingEasting / this.mgrsGridInterval) * this.mgrsGridInterval;
       finalEasting = Math.floor(finalEasting / this.mgrsGridInterval) * this.mgrsGridInterval;
@@ -246,8 +234,8 @@ class Graticule extends Layer {
       for (let i = startingNorthing; i <= finalNorthing; i += this.mgrsGridInterval) {
         northingArray.push(i);
       }
-      let zoneLetter = NW_CORNER_UTM.ZoneLetter;
-      let zoneNumber = NW_CORNER_UTM.ZoneNumber;
+      let zoneLetter = NW_CORNER_UTM.zoneLetter;
+      let zoneNumber = NW_CORNER_UTM.zoneNumber;
       // Lines of constant Eastings
       eastingArray.forEach((eastingElem, eastingIndex, eastArr) => {
         let shouldSkip = false;
@@ -256,18 +244,13 @@ class Graticule extends Layer {
           if (shouldSkip) {
             return;
           }
-          let gridIntersectionLl = utm.convertUtmToLatLng(eastingElem, northingElem, zoneNumber, zoneLetter);
+          let gridIntersectionLl = utmToLl(eastingElem, northingElem, zoneNumber, zoneLetter);
           if (gridIntersectionLl.lng < GZD_WEST_BOUNDARY || gridIntersectionLl.lng > GZD_EAST_BOUNDARY) {
             return; //No need to draw this because it's outside the GZD - floor calculation from above.
           }
 
           if (gridIntersectionLl.lat < GZD_SOUTH_BOUNDARY) {
-            let nextIntersectionLl = utm.convertUtmToLatLng(
-              eastingElem,
-              northArr[northingIndex + 1],
-              zoneNumber,
-              zoneLetter
-            );
+            let nextIntersectionLl = utmToLl(eastingElem, northArr[northingIndex + 1], zoneNumber, zoneLetter);
             gridIntersectionLl = connectToGzdBoundary(gridIntersectionLl, nextIntersectionLl, 'North');
           }
           let gridIntersectionXy;
@@ -286,12 +269,7 @@ class Graticule extends Layer {
             }
 
             if (gridIntersectionLl.lat > GZD_NORTH_BOUNDARY) {
-              let previousIntersectionLl = utm.convertUtmToLatLng(
-                eastingElem,
-                northArr[northingIndex - 1],
-                zoneNumber,
-                zoneLetter
-              );
+              let previousIntersectionLl = utmToLl(eastingElem, northArr[northingIndex - 1], zoneNumber, zoneLetter);
 
               gridIntersectionLl = connectToGzdBoundary(gridIntersectionLl, previousIntersectionLl, 'South');
 
@@ -304,7 +282,7 @@ class Graticule extends Layer {
         const notHkLine = eastingElem % 100000 !== 0;
         this._drawLine(ctx, notHkLine);
 
-        let gridLabelLl = utm.convertUtmToLatLng(eastingElem, northingArray[1], zoneNumber, zoneLetter);
+        let gridLabelLl = utmToLl(eastingElem, northingArray[1], zoneNumber, zoneLetter);
 
         if (gridLabelLl.lng > GZD_WEST_BOUNDARY) {
           try {
@@ -325,19 +303,14 @@ class Graticule extends Layer {
       // Lines of constant Northings
       northingArray.forEach((northingElem, northingIndex, northArr) => {
         eastingArray.forEach((eastingElem, eastingIndex, eastArr) => {
-          let gridIntersectionLl = utm.convertUtmToLatLng(eastingElem, northingElem, zoneNumber, zoneLetter);
+          let gridIntersectionLl = utmToLl(eastingElem, northingElem, zoneNumber, zoneLetter);
 
           let gridIntersectionXy = this.map.latLngToContainerPoint(gridIntersectionLl);
           if (eastingIndex === 0) {
             ctx.beginPath();
             // If the first point lies to the west of the GZD, truncate it
             if (gridIntersectionLl.lng < GZD_WEST_BOUNDARY) {
-              let nextIntersectionLl = utm.convertUtmToLatLng(
-                eastArr[eastingIndex + 1],
-                northingElem,
-                zoneNumber,
-                zoneLetter
-              );
+              let nextIntersectionLl = utmToLl(eastArr[eastingIndex + 1], northingElem, zoneNumber, zoneLetter);
               try {
                 gridIntersectionLl = connectToGzdBoundary(gridIntersectionLl, nextIntersectionLl, 'East');
                 gridIntersectionXy = this.map.latLngToContainerPoint(gridIntersectionLl);
@@ -347,12 +320,7 @@ class Graticule extends Layer {
             }
             ctx.moveTo(gridIntersectionXy.x, gridIntersectionXy.y);
           } else if (eastingIndex === eastArr.length - 1) {
-            let previousIntersectionLl = utm.convertUtmToLatLng(
-              eastArr[eastingIndex - 1],
-              northingElem,
-              zoneNumber,
-              zoneLetter
-            );
+            let previousIntersectionLl = utmToLl(eastArr[eastingIndex - 1], northingElem, zoneNumber, zoneLetter);
             let gzdIntersectionLl =
               gridIntersectionLl.lng < GZD_EAST_BOUNDARY
                 ? connectToGzdBoundary(gridIntersectionLl, previousIntersectionLl, 'East')
@@ -369,12 +337,7 @@ class Graticule extends Layer {
         this._drawLine(ctx, notHkLine);
 
         try {
-          let gridLabelLl = utm.convertUtmToLatLng(
-            eastingArray[eastingArray.length - 1],
-            northingElem,
-            zoneNumber,
-            zoneLetter
-          );
+          let gridLabelLl = utmToLl(eastingArray[eastingArray.length - 1], northingElem, zoneNumber, zoneLetter);
           let gridLabelXy = this.map.latLngToContainerPoint({
             lat: gridLabelLl.lat,
             lng: effectiveEastGzdBoundary,

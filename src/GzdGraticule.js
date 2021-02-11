@@ -1,6 +1,7 @@
+import { llToMgrs } from './Coordinates';
 import { Layer } from 'leaflet';
 import { useMap } from 'react-leaflet';
-import { forward } from 'mgrs';
+
 import { drawLabel } from './CommonUtils';
 
 const MGRS_REGEX = /([0-9]+[A-Z])([A-Z]{2})(\d+)/;
@@ -454,7 +455,7 @@ class Graticule extends Layer {
 
       let gzdLabel;
       try {
-        gzdLabel = forward([labelLongitude, labelLatitude], 1).match(MGRS_REGEX)[GZD_INDEX];
+        gzdLabel = llToMgrs([labelLongitude, labelLatitude], 1).match(MGRS_REGEX)[GZD_INDEX];
       } catch (error) {
         return; //Invalid MGRS value returned, so no need to try to display a label
       }
