@@ -160,12 +160,12 @@ function getAllVisibleGzds(nwGzd, neGzd, seGzd, swGzd) {
   if (nwGzd === seGzd) {
     return [nwGzd];
   }
-  const NW_LONGITUDE_BAND = parseInt(nwGzd.match(GZD_REGEX)[LONGITUDE_BAND_INDEX]);
-  const NW_LATITUDE_BAND = nwGzd.match(GZD_REGEX)[LATITUDE_BAND_INDEX];
+  const nwLongitudeBand = parseInt(nwGzd.match(GZD_REGEX)[LONGITUDE_BAND_INDEX]);
+  const nwLatitudeBand = nwGzd.match(GZD_REGEX)[LATITUDE_BAND_INDEX];
 
-  const NE_LONGITUDE_BAND = parseInt(neGzd.match(GZD_REGEX)[LONGITUDE_BAND_INDEX]);
+  const neLongitudeBand = parseInt(neGzd.match(GZD_REGEX)[LONGITUDE_BAND_INDEX]);
 
-  const SW_LATITUDE_BAND = swGzd.match(GZD_REGEX)[LATITUDE_BAND_INDEX];
+  const swLatitudeBand = swGzd.match(GZD_REGEX)[LATITUDE_BAND_INDEX];
 
   let result = [];
 
@@ -178,19 +178,19 @@ function getAllVisibleGzds(nwGzd, neGzd, seGzd, swGzd) {
   }
 
   // We span at least two vertical bands
-  if (NW_LONGITUDE_BAND !== NE_LONGITUDE_BAND) {
-    for (let i = NW_LONGITUDE_BAND; i <= NE_LONGITUDE_BAND; i++) {
+  if (nwLongitudeBand !== neLongitudeBand) {
+    for (let i = nwLongitudeBand; i <= neLongitudeBand; i++) {
       longitudeBands.push(i.toString());
     }
-    if (NW_LATITUDE_BAND !== SW_LATITUDE_BAND) {
-      const INITIAL_LONGITUDE_BAND = [...longitudeBands];
+    if (nwLatitudeBand !== swLatitudeBand) {
+      const initialLongitudeBand = [...longitudeBands];
 
-      let currentLatitudeBand = SW_LATITUDE_BAND;
-      while (currentLatitudeBand <= NW_LATITUDE_BAND) {
-        const len = INITIAL_LONGITUDE_BAND.length;
+      let currentLatitudeBand = swLatitudeBand;
+      while (currentLatitudeBand <= nwLatitudeBand) {
+        const len = initialLongitudeBand.length;
 
         for (let i = 0; i < len; i++) {
-          result.push(INITIAL_LONGITUDE_BAND[i] + currentLatitudeBand);
+          result.push(initialLongitudeBand[i] + currentLatitudeBand);
         }
 
         currentLatitudeBand = getNextMgrsGzdCharacter(currentLatitudeBand);
@@ -201,17 +201,17 @@ function getAllVisibleGzds(nwGzd, neGzd, seGzd, swGzd) {
       // Append the alpha character to the array of GZDs
       const len = longitudeBands.length;
       for (let i = 0; i < len; i++) {
-        longitudeBands[i] = longitudeBands[i].toString() + NW_LATITUDE_BAND;
+        longitudeBands[i] = longitudeBands[i].toString() + nwLatitudeBand;
       }
       result = longitudeBands;
     }
   } else {
     // We span a single vertical band
-    let currentLatitudeBand = SW_LATITUDE_BAND;
+    let currentLatitudeBand = swLatitudeBand;
     const longitudeBand = []; // Container for the formatted GZDs
 
-    while (currentLatitudeBand <= NW_LATITUDE_BAND) {
-      longitudeBand.push(NW_LONGITUDE_BAND.toString() + currentLatitudeBand);
+    while (currentLatitudeBand <= nwLatitudeBand) {
+      longitudeBand.push(nwLongitudeBand.toString() + currentLatitudeBand);
 
       currentLatitudeBand = getNextMgrsGzdCharacter(currentLatitudeBand);
     }
@@ -238,18 +238,18 @@ function getAllVisibleGzds(nwGzd, neGzd, seGzd, swGzd) {
 }
 
 function drawLabel(ctx, labelText, textColor, backgroundColor, labelPosition) {
-  const TEXT_WIDTH = ctx.measureText(labelText).width;
-  const TEXT_HEIGHT = ctx.measureText(labelText).fontBoundingBoxAscent;
+  const textWidth = ctx.measureText(labelText).width;
+  const textHeight = ctx.measureText(labelText).fontBoundingBoxAscent;
 
   // Calculate label xy position
-  const LABEL_X = labelPosition.x;
-  const LABEL_Y = labelPosition.y;
+  const labelX = labelPosition.x;
+  const labelY = labelPosition.y;
 
   ctx.fillStyle = backgroundColor;
   // Magic numbers will centre the rectangle over the text
-  ctx.fillRect(LABEL_X - TEXT_WIDTH / 2 - 1, LABEL_Y - TEXT_HEIGHT + 1, TEXT_WIDTH + 3, TEXT_HEIGHT + 2);
+  ctx.fillRect(labelX - textWidth / 2 - 1, labelY - textHeight + 1, textWidth + 3, textHeight + 2);
   ctx.fillStyle = textColor;
-  ctx.fillText(labelText, LABEL_X - TEXT_WIDTH / 2, LABEL_Y);
+  ctx.fillText(labelText, labelX - textWidth / 2, labelY);
 }
 
 export {

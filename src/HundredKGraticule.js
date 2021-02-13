@@ -163,7 +163,7 @@ class Graticule extends Layer {
       case 6:
         return 1;
       default:
-        return 1; //TODO - Modify according to what I set the maxZoom for 100k to be
+        return 1;
     }
   }
 

@@ -61,13 +61,13 @@ class Graticule extends Layer {
   }
 
   reset() {
-    const MAP_SIZE = this.map.getSize();
-    const MAP_LEFT_TOP = this.map.containerPointToLayerPoint([0, 0]);
+    const mapSize = this.map.getSize();
+    const mapLeftTop = this.map.containerPointToLayerPoint([0, 0]);
 
-    this.canvas.style['transform'] = `translate3d(${MAP_LEFT_TOP.x}px,${MAP_LEFT_TOP.y}px,0)`;
+    this.canvas.style['transform'] = `translate3d(${mapLeftTop.x}px,${mapLeftTop.y}px,0)`;
 
-    this.canvas.width = MAP_SIZE.x;
-    this.canvas.height = MAP_SIZE.y;
+    this.canvas.width = mapSize.x;
+    this.canvas.height = mapSize.y;
 
     this.drawGzd();
   }
@@ -164,19 +164,19 @@ class Graticule extends Layer {
   }
 
   drawLatitudeLine(ctx, tick, lngLeft, lngRight) {
-    const LEFT_END = this.map.latLngToContainerPoint({
+    const leftEnd = this.map.latLngToContainerPoint({
       lat: tick,
       lng: lngLeft,
     });
 
-    const RIGHT_END = this.map.latLngToContainerPoint({
+    const rightEnd = this.map.latLngToContainerPoint({
       lat: tick,
       lng: lngRight,
     });
 
     ctx.beginPath();
-    ctx.moveTo(LEFT_END.x, LEFT_END.y);
-    ctx.lineTo(RIGHT_END.x, RIGHT_END.y);
+    ctx.moveTo(leftEnd.x, leftEnd.y);
+    ctx.lineTo(rightEnd.x, rightEnd.y);
     ctx.stroke();
   }
 
@@ -189,12 +189,12 @@ class Graticule extends Layer {
       latBottom = -80; // Ensure GZD vertical lines do not extend into the antarctic
     }
 
-    const CANVAS_TOP = this.map.latLngToContainerPoint({
+    const canvasTop = this.map.latLngToContainerPoint({
       lat: latTop,
       lng: tick,
     });
 
-    const CANVAS_BOTTOM = this.map.latLngToContainerPoint({
+    const canvasBottom = this.map.latLngToContainerPoint({
       lat: latBottom,
       lng: tick,
     });
@@ -237,26 +237,26 @@ class Graticule extends Layer {
           });
           ctx.moveTo(TOP_LEFT_OF_32_SERIES_GZD.x, TOP_LEFT_OF_32_SERIES_GZD.y);
         } else {
-          ctx.moveTo(CANVAS_TOP.x, CANVAS_TOP.y);
+          ctx.moveTo(canvasTop.x, canvasTop.y);
         }
 
         ctx.lineTo(RIGHT_TOP_OF_GZD.x, RIGHT_TOP_OF_GZD.y);
 
         ctx.moveTo(LEFT_TOP_OF_GZD.x, LEFT_TOP_OF_GZD.y);
 
-        ctx.lineTo(LEFT_TOP_OF_GZD.x, CANVAS_BOTTOM.y);
+        ctx.lineTo(LEFT_TOP_OF_GZD.x, canvasBottom.y);
       } else if (
         //Bottom segment only
         latTop < TOP_OF_V_SERIES_GZD &&
         latBottom < BOTTOM_OF_V_SERIES_GZD
       ) {
-        ctx.moveTo(LEFT_TOP_OF_GZD.x, CANVAS_TOP.y);
+        ctx.moveTo(LEFT_TOP_OF_GZD.x, canvasTop.y);
 
         ctx.lineTo(LEFT_BOTTOM_OF_GZD.x, LEFT_BOTTOM_OF_GZD.y);
 
         ctx.moveTo(RIGHT_BOTTOM_OF_GZD.x, RIGHT_BOTTOM_OF_GZD.y);
 
-        ctx.lineTo(RIGHT_BOTTOM_OF_GZD.x, CANVAS_BOTTOM.y);
+        ctx.lineTo(RIGHT_BOTTOM_OF_GZD.x, canvasBottom.y);
       } else if (
         // Entire thing
         latTop >= TOP_OF_V_SERIES_GZD &&
@@ -270,7 +270,7 @@ class Graticule extends Layer {
           });
           ctx.moveTo(TOP_LEFT_OF_32_SERIES_GZD.x, TOP_LEFT_OF_32_SERIES_GZD.y);
         } else {
-          ctx.moveTo(CANVAS_TOP.x, CANVAS_TOP.y);
+          ctx.moveTo(canvasTop.x, canvasTop.y);
         }
 
         ctx.lineTo(RIGHT_TOP_OF_GZD.x, RIGHT_TOP_OF_GZD.y);
@@ -281,15 +281,15 @@ class Graticule extends Layer {
 
         ctx.moveTo(RIGHT_TOP_OF_GZD.x, LEFT_BOTTOM_OF_GZD.y);
 
-        ctx.lineTo(RIGHT_TOP_OF_GZD.x, CANVAS_BOTTOM.y);
+        ctx.lineTo(RIGHT_TOP_OF_GZD.x, canvasBottom.y);
       } else if (
         // Modified vertical only
         latTop <= TOP_OF_V_SERIES_GZD &&
         latBottom >= BOTTOM_OF_V_SERIES_GZD
       ) {
-        ctx.moveTo(LEFT_TOP_OF_GZD.x, CANVAS_TOP.y);
+        ctx.moveTo(LEFT_TOP_OF_GZD.x, canvasTop.y);
 
-        ctx.lineTo(LEFT_BOTTOM_OF_GZD.x, CANVAS_BOTTOM.y);
+        ctx.lineTo(LEFT_BOTTOM_OF_GZD.x, canvasBottom.y);
       }
     } else if (tick === 12) {
       if (latTop > TOP_OF_W_SERIES_GZD && latTop <= 84) {
@@ -314,11 +314,11 @@ class Graticule extends Layer {
 
         ctx.moveTo(TOP_RIGHT_OF_32W_GZD.x, TOP_RIGHT_OF_32W_GZD.y);
 
-        ctx.lineTo(CANVAS_BOTTOM.x, CANVAS_BOTTOM.y);
+        ctx.lineTo(canvasBottom.x, canvasBottom.y);
       } else {
         // Normal use case
-        ctx.moveTo(CANVAS_TOP.x, CANVAS_TOP.y);
-        ctx.lineTo(CANVAS_BOTTOM.x, CANVAS_BOTTOM.y);
+        ctx.moveTo(canvasTop.x, canvasTop.y);
+        ctx.lineTo(canvasBottom.x, canvasBottom.y);
       }
     } else if (tick === 18) {
       // Do not draw through Svalbard
@@ -329,9 +329,9 @@ class Graticule extends Layer {
         });
         ctx.moveTo(TOP_LEFT_OF_34_SERIES_GZD.x, TOP_LEFT_OF_34_SERIES_GZD.y);
       } else {
-        ctx.moveTo(CANVAS_TOP.x, CANVAS_TOP.y);
+        ctx.moveTo(canvasTop.x, canvasTop.y);
       }
-      ctx.lineTo(CANVAS_BOTTOM.x, CANVAS_BOTTOM.y);
+      ctx.lineTo(canvasBottom.x, canvasBottom.y);
     } else if (tick === 24) {
       if (latTop > TOP_OF_W_SERIES_GZD && latTop <= 84) {
         // Handle Svalbard
@@ -355,11 +355,11 @@ class Graticule extends Layer {
 
         ctx.moveTo(TOP_RIGHT_OF_34W_GZD.x, TOP_RIGHT_OF_34W_GZD.y);
 
-        ctx.lineTo(CANVAS_BOTTOM.x, CANVAS_BOTTOM.y);
+        ctx.lineTo(canvasBottom.x, canvasBottom.y);
       } else {
         // Normal use case
-        ctx.moveTo(CANVAS_TOP.x, CANVAS_TOP.y);
-        ctx.lineTo(CANVAS_BOTTOM.x, CANVAS_BOTTOM.y);
+        ctx.moveTo(canvasTop.x, canvasTop.y);
+        ctx.lineTo(canvasBottom.x, canvasBottom.y);
       }
     } else if (tick === 30) {
       // Do not draw through Svalbard
@@ -370,9 +370,9 @@ class Graticule extends Layer {
         });
         ctx.moveTo(TOP_LEFT_OF_35_SERIES_GZD.x, TOP_LEFT_OF_35_SERIES_GZD.y);
       } else {
-        ctx.moveTo(CANVAS_TOP.x, CANVAS_TOP.y);
+        ctx.moveTo(canvasTop.x, canvasTop.y);
       }
-      ctx.lineTo(CANVAS_BOTTOM.x, CANVAS_BOTTOM.y);
+      ctx.lineTo(canvasBottom.x, canvasBottom.y);
     } else if (tick === 36) {
       if (latTop > TOP_OF_W_SERIES_GZD && latTop <= 84) {
         // Handle Svalbard
@@ -396,17 +396,17 @@ class Graticule extends Layer {
 
         ctx.moveTo(TOP_RIGHT_OF_36W_GZD.x, TOP_RIGHT_OF_36W_GZD.y);
 
-        ctx.lineTo(CANVAS_BOTTOM.x, CANVAS_BOTTOM.y);
+        ctx.lineTo(canvasBottom.x, canvasBottom.y);
       } else {
         // Normal use case
-        ctx.moveTo(CANVAS_TOP.x, CANVAS_TOP.y);
-        ctx.lineTo(CANVAS_BOTTOM.x, CANVAS_BOTTOM.y);
+        ctx.moveTo(canvasTop.x, canvasTop.y);
+        ctx.lineTo(canvasBottom.x, canvasBottom.y);
       }
     }
     // The rest of the world...
     else {
-      ctx.moveTo(CANVAS_TOP.x, CANVAS_TOP.y);
-      ctx.lineTo(CANVAS_BOTTOM.x, CANVAS_BOTTOM.y);
+      ctx.moveTo(canvasTop.x, canvasTop.y);
+      ctx.lineTo(canvasBottom.x, canvasBottom.y);
     }
     ctx.stroke();
 
@@ -460,18 +460,18 @@ class Graticule extends Layer {
         return; //Invalid MGRS value returned, so no need to try to display a label
       }
 
-      // TODO - MORE MAGIC NUMBERS!!! - Don't want to display duplicates of the following zones
+      // Don't want to display duplicates of the following zones
       if (
         !(gzdLabel === '33X' && longitude === 6) &&
         !(gzdLabel === '35X' && longitude === 18) &&
         !(gzdLabel === '37X' && longitude === 30)
       ) {
-        const LABEL_XY = this.map.latLngToContainerPoint({
+        const labelXy = this.map.latLngToContainerPoint({
           lat: labelLatitude,
           lng: labelLongitude,
         });
 
-        drawLabel(ctx, gzdLabel, this.options.fontColor, this.options.color, LABEL_XY);
+        drawLabel(ctx, gzdLabel, this.options.fontColor, this.options.color, labelXy);
       }
     }
   }
