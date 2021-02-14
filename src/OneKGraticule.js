@@ -406,16 +406,20 @@ class Graticule extends Layer {
               lng: (currentLl.lng + adjacentLlEasting.lng) / 2,
             };
 
-            if (labelLl && effectiveBounds.contains(labelLl)) {
-              let labelText = llToMgrs([labelLl.lng, labelLl.lat]).match(MGRS_REGEX)[HK_INDEX];
+            try {
+              if (labelLl && effectiveBounds.contains(labelLl)) {
+                let labelText = llToMgrs([labelLl.lng, labelLl.lat]).match(MGRS_REGEX)[HK_INDEX];
 
-              drawLabel(
-                ctx,
-                labelText,
-                this.options.fontColor,
-                this.options.hkColor,
-                this.map.latLngToContainerPoint(labelLl)
-              );
+                drawLabel(
+                  ctx,
+                  labelText,
+                  this.options.fontColor,
+                  this.options.hkColor,
+                  this.map.latLngToContainerPoint(labelLl)
+                );
+              }
+            } catch (e) {
+              return;
             }
           });
         });
