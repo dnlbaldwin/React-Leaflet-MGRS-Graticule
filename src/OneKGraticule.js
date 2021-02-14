@@ -442,9 +442,14 @@ class Graticule extends Layer {
         });
 
         northingArray.forEach((northingElem, northingIndex, na) => {
-          let labelLl = utmToLl(eastingArray[eastingArray.length - 1], northingElem, zoneNumber, zoneLetter);
+          let labelXy;
+          try {
+            let labelLl = utmToLl(eastingArray[eastingArray.length - 1], northingElem, zoneNumber, zoneLetter);
 
-          let labelXy = this.map.latLngToContainerPoint({ lat: labelLl.lat, lng: effectiveEastBoundary });
+            labelXy = this.map.latLngToContainerPoint({ lat: labelLl.lat, lng: effectiveEastBoundary });
+          } catch (e) {
+            return;
+          }
 
           let labelText = this._getLabelText(northingElem);
 
