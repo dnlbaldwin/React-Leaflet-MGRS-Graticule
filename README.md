@@ -39,14 +39,10 @@ npm test
 ## Usage
 
 ```js
-import React from "react";
-import { MapContainer, TileLayer } from "react-leaflet";
-import {
-  GzdGraticule,
-  HundredKGraticule,
-  OneKGraticule,
-} from "react-leaflet-mgrs-graticule";
-import "./App.css";
+import React from 'react';
+import { MapContainer, TileLayer } from 'react-leaflet';
+import { GzdGraticule, OneKGraticule } from 'react-leaflet-mgrs-graticule';
+import './App.css';
 
 function App() {
   return (
@@ -66,7 +62,6 @@ function App() {
         attribution='&copy; <a href="https://wiki.openstreetmap.org/wiki/Esri"></a> contributors'
       />
       <OneKGraticule />
-      <HundredKGraticule />
       <GzdGraticule />
     </MapContainer>
   );
