@@ -356,14 +356,58 @@ class Graticule extends Layer {
         this._drawLine(ctx, notHkLine);
       });
 
+      let skipRemainder = false;
       // Draw the labels
       if (this.mgrsGridInterval === 100000) {
         eastingArray.forEach((eastingElem, eastingIndex, ea) => {
+          if (skipRemainder) {
+            return;
+          }
           northingArray.forEach((northingElem, northingIndex, na) => {
-            let labelLl = utmToLl(eastingElem, northingElem, zoneNumber, zoneLetter);
+            let labelLl;
+            let currentLl = utmToLl(eastingElem, northingElem, zoneNumber, zoneLetter);
+            let adjacentLlNorthing;
+            let adjacentLlEasting;
 
-            if (effectiveBounds.contains(labelLl)) {
-              let labelText = llToMgrs([labelLl.lng, labelLl.lat]).match(MGRS_REGEX)[GRID_INDEX];
+            if (eastingIndex !== ea.length - 1) {
+              adjacentLlEasting = utmToLl(ea[eastingIndex + 1], northingElem, zoneNumber, zoneLetter);
+              if (adjacentLlEasting.lng > effectiveEastBoundary) {
+                const slope = getLineSlope(currentLl, adjacentLlEasting);
+                adjacentLlEasting.lat = getAdjustedLatitude(slope, effectiveEastBoundary, adjacentLlEasting);
+                adjacentLlEasting.lng = effectiveEastBoundary;
+                skipRemainder = true;
+              }
+            } else {
+              adjacentLlEasting = utmToLl(ea[eastingIndex - 1], northingElem, zoneNumber, zoneLetter);
+            }
+
+            if (northingIndex !== na.length - 1) {
+              adjacentLlNorthing = utmToLl(eastingElem, na[northingIndex + 1], zoneNumber, zoneLetter);
+            } else {
+              adjacentLlNorthing = utmToLl(eastingElem, na[northingIndex - 1], zoneNumber, zoneLetter);
+            }
+
+            if (currentLl.lng < effectiveWestBoundary) {
+              const slope = getLineSlope(currentLl, adjacentLlEasting);
+              currentLl.lat = getAdjustedLatitude(slope, effectiveWestBoundary, currentLl);
+              currentLl.lng = effectiveWestBoundary;
+            } else if (currentLl.lng > effectiveEastBoundary) {
+              const slope = getLineSlope(currentLl, adjacentLlEasting);
+              currentLl.lat = getAdjustedLatitude(slope, effectiveEastBoundary, currentLl);
+              currentLl.lng = effectiveEastBoundary;
+            }
+
+            if (L.latLng(currentLl).distanceTo(adjacentLlEasting) < 10000) {
+              return;
+            }
+
+            labelLl = {
+              lat: (currentLl.lat + adjacentLlNorthing.lat) / 2,
+              lng: (currentLl.lng + adjacentLlEasting.lng) / 2,
+            };
+
+            if (labelLl && effectiveBounds.contains(labelLl)) {
+              let labelText = llToMgrs([labelLl.lng, labelLl.lat]).match(MGRS_REGEX)[HK_INDEX];
 
               drawLabel(
                 ctx,
@@ -378,9 +422,14 @@ class Graticule extends Layer {
       } else {
         eastingArray.forEach((eastingElem, eastingIndex, ea) => {
           if (!(eastingIndex === 0 || eastingIndex === ea.length - 1)) {
-            let labelLl = utmToLl(eastingElem, northingArray[1], zoneNumber, zoneLetter);
+            let labelXy;
+            try {
+              let labelLl = utmToLl(eastingElem, northingArray[1], zoneNumber, zoneLetter);
 
-            let labelXy = this.map.latLngToContainerPoint({ lat: effectiveSouthBoundary, lng: labelLl.lng });
+              labelXy = this.map.latLngToContainerPoint({ lat: effectiveSouthBoundary, lng: labelLl.lng });
+            } catch (e) {
+              return;
+            }
 
             let labelText = this._getLabelText(eastingElem);
 
