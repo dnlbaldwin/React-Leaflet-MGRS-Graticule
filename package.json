@@ -6,7 +6,7 @@
   "main": "./src/index.js",
   "scripts": {
     "test": "react-scripts test",
-    "build": "cd ./example && react-scripts build",
+    "build": "cd example && react-scripts build",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d ./example/build"
   },
@@ -25,8 +25,7 @@
     "gzd-utils": "^1.0.3",
     "leaflet": "^1.7.1",
     "mgrs": "^1.0.0",
-    "react-leaflet": "^3.1.0",
-    "utm-latlng": "^1.0.6"
+    "react-leaflet": "^3.1.0"
   },
   "devDependencies": {
     "@types/leaflet": "^1.5.19",
