@@ -1,6 +1,6 @@
 import React from 'react';
 import { MapContainer, TileLayer } from 'react-leaflet';
-import { GzdGraticule, HundredKGraticule, OneKGraticule } from 'react-leaflet-mgrs-graticule';
+import { GzdGraticule, OneKGraticule } from 'react-leaflet-mgrs-graticule';
 import './App.css';
 
 function App() {
