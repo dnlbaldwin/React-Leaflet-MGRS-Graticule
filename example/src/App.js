@@ -26,7 +26,6 @@ function App() {
         attribution='&copy; <a href="https://wiki.openstreetmap.org/wiki/Esri"></a> contributors'
       />
       <OneKGraticule />
-      {/* <HundredKGraticule /> */}
       <GzdGraticule />
     </MapContainer>
   );
