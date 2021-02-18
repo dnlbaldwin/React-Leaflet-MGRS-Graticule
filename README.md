@@ -41,7 +41,7 @@ npm test
 ```js
 import React from 'react';
 import { MapContainer, TileLayer } from 'react-leaflet';
-import { GzdGraticule, OneKGraticule } from 'react-leaflet-mgrs-graticule';
+import { MgrsGraticule } from 'react-leaflet-mgrs-graticule';
 import './App.css';
 
 function App() {
@@ -61,8 +61,7 @@ function App() {
         url="https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
         attribution='&copy; <a href="https://wiki.openstreetmap.org/wiki/Esri"></a> contributors'
       />
-      <OneKGraticule />
-      <GzdGraticule />
+      <MgrsGraticule />
     </MapContainer>
   );
 }

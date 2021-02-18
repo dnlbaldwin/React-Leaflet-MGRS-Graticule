@@ -1,2 +1,1 @@
-export { GzdGraticule } from './GzdGraticule';
-export { OneKGraticule } from './OneKGraticule';
+export { MgrsGraticule } from './MgrsGraticule';
