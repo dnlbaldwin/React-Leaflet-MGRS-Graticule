@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "A React-based MGRS graticule for Leaflet using Canvas",
   "homepage": "https://dnlbaldwin.github.io/React-Leaflet-MGRS-Graticule/",
-  "main": "./src/index.js",
+  "main": "./src/MgrsGraticule.js",
   "scripts": {
     "test": "react-scripts test",
     "build": "react-scripts build",
