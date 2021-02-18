@@ -147,19 +147,9 @@ class Graticule extends Layer {
       }
     }
 
-    // Northern hemisphere
     // HACK - Add six to the right bottom lng to make sure the East 31V boundary is displayed at all times
-    for (let i = this.currLngInterval; i <= rightBottom.lng + 6; i += this.currLngInterval) {
-      if (i >= leftTop.lng) {
-        this.drawLongitudeLine(ctx, i, leftTop.lat, rightBottom.lat);
-      }
-    }
-
-    // Southern hemisphere
-    for (let i = 0; i >= leftTop.lng; i -= this.currLngInterval) {
-      if (i <= rightBottom.lng) {
-        this.drawLongitudeLine(ctx, i, leftTop.lat, rightBottom.lat);
-      }
+    for (let i = -180; i <= rightBottom.lng + 6; i += this.currLngInterval) {
+      this.drawLongitudeLine(ctx, i, leftTop.lat, rightBottom.lat);
     }
   }
 
