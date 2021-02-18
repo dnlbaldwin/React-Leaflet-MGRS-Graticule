@@ -47,16 +47,11 @@ class Graticule extends Layer {
       showGrid: true,
       showLabel: true,
       opacity: 10,
-      weight: 3,
       color: '#888888',
       font: '14px Courier New',
       fontColor: '#FFF',
       dashArray: [6, 6],
-      minZoom: 3,
-
-      showGrid: true,
-      showLabel: true,
-      opacity: 10,
+      gzdMinZoom: 3,
       weight: 1.5,
       gridColor: '#000',
       hkColor: '#990000', //Font background colour and dash colour
