@@ -583,8 +583,12 @@ class Graticule extends Layer {
     const mapBounds = this.map.getBounds();
 
     visibleGzds.forEach((gzd, gzdIndex, visibleGridArr) => {
-      // TODO - New LLtoUTM will give GZD long bands that are not valid (<1 and >60)
-      const gzdObject = getGZD(gzd);
+      let gzdObject;
+      try {
+        gzdObject = getGZD(gzd);
+      } catch (e) {
+        return;
+      }
 
       const gzdWestBoundary = gzdObject['geometry']['coordinates'][0][NW_INDEX][LONGITUDE_INDEX];
       const gzdEastBoundary = gzdObject['geometry']['coordinates'][0][NE_INDEX][LONGITUDE_INDEX];
@@ -764,6 +768,9 @@ class Graticule extends Layer {
             let currentLl = utmToLl(eastingElem, northingElem, zoneNumber, zoneLetter);
             let adjacentLlNorthing;
             let adjacentLlEasting;
+            if (northingIndex === na.length - 1) {
+              return;
+            }
 
             if (eastingIndex !== ea.length - 1) {
               adjacentLlEasting = utmToLl(ea[eastingIndex + 1], northingElem, zoneNumber, zoneLetter);
@@ -777,11 +784,7 @@ class Graticule extends Layer {
               adjacentLlEasting = utmToLl(ea[eastingIndex - 1], northingElem, zoneNumber, zoneLetter);
             }
 
-            if (northingIndex !== na.length - 1) {
-              adjacentLlNorthing = utmToLl(eastingElem, na[northingIndex + 1], zoneNumber, zoneLetter);
-            } else {
-              adjacentLlNorthing = utmToLl(eastingElem, na[northingIndex - 1], zoneNumber, zoneLetter);
-            }
+            adjacentLlNorthing = utmToLl(eastingElem, na[northingIndex + 1], zoneNumber, zoneLetter);
 
             if (currentLl.lng < effectiveWestBoundary) {
               const slope = getLineSlope(currentLl, adjacentLlEasting);
