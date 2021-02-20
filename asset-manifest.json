@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/React-Leaflet-MGRS-Graticule/static/css/main.8977a727.chunk.css",
-    "main.js": "/React-Leaflet-MGRS-Graticule/static/js/main.ad56b0b7.chunk.js",
-    "main.js.map": "/React-Leaflet-MGRS-Graticule/static/js/main.ad56b0b7.chunk.js.map",
+    "main.js": "/React-Leaflet-MGRS-Graticule/static/js/main.d37d135a.chunk.js",
+    "main.js.map": "/React-Leaflet-MGRS-Graticule/static/js/main.d37d135a.chunk.js.map",
     "runtime-main.js": "/React-Leaflet-MGRS-Graticule/static/js/runtime-main.f28779e3.js",
     "runtime-main.js.map": "/React-Leaflet-MGRS-Graticule/static/js/runtime-main.f28779e3.js.map",
     "static/js/2.77d713d3.chunk.js": "/React-Leaflet-MGRS-Graticule/static/js/2.77d713d3.chunk.js",
@@ -15,6 +15,6 @@
     "static/js/runtime-main.f28779e3.js",
     "static/js/2.77d713d3.chunk.js",
     "static/css/main.8977a727.chunk.css",
-    "static/js/main.ad56b0b7.chunk.js"
+    "static/js/main.d37d135a.chunk.js"
   ]
 }
