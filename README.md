@@ -71,8 +71,8 @@ export default App;
 
 ## Roadmap
 
-- Burndown existing issues.
-- Merge three graticule classes into a single class to reduce SLOC. These classes already have implied dependencies on eachother so might as well merge them.
+- ~~Burndown existing issues.~~
+- ~~Merge three graticule classes into a single class to reduce SLOC. These classes already have implied dependencies on eachother so might as well merge them.~~
 - Figure out how to unit-test canvas.
 - ~~Deploy to NPM.~~
 
