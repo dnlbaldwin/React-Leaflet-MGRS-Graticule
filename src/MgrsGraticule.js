@@ -685,6 +685,7 @@ class Graticule extends Layer {
 
       // Lines of constant Northings
       northingArray.forEach((northingElem, northingIndex, northArr) => {
+        let beginPathCalled = false;
         eastingArray.forEach((eastingElem, eastingIndex, eastArr) => {
           let gridIntersectionLl = utmToLl(eastingElem, northingElem, zoneNumber, zoneLetter);
 
@@ -692,11 +693,17 @@ class Graticule extends Layer {
           // arrays will be outside of the GZD.  These points are required because they are used to derive the
           // point of intersection with the GZD boundary.
           if (gridIntersectionLl.lat > gzdNorthBoundary || gridIntersectionLl.lat < gzdSouthBoundary) {
+            if (!beginPathCalled) {
+              ctx.beginPath();
+              beginPathCalled = true;
+            }
+
             return;
           }
           let gridIntersectionXy = this.map.latLngToContainerPoint(gridIntersectionLl);
           if (eastingIndex === 0) {
             ctx.beginPath();
+            beginPathCalled = true;
             // Truncate the line to the effective western boundary
             if (gridIntersectionLl.lng < effectiveWestBoundary) {
               const nextGridIntersectionLl = utmToLl(eastArr[eastingIndex + 1], northingElem, zoneNumber, zoneLetter);
