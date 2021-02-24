@@ -1,6 +1,6 @@
 {
   "name": "react-leaflet-mgrs-graticule",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A React-based MGRS graticule for Leaflet using Canvas",
   "homepage": "https://dnlbaldwin.github.io/React-Leaflet-MGRS-Graticule/",
   "main": "./src/MgrsGraticule.js",
