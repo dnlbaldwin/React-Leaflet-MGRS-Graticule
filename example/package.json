@@ -7,11 +7,8 @@
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "react": "^17.0.1",
+    "react-dom": "^17.0.1",
     "react-leaflet-mgrs-graticule": "file:.."
-  },
-  "peerDependencies": {
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1"
   },
   "homepage": "https://dnlbaldwin.github.io/React-Leaflet-MGRS-Graticule/",
   "scripts": {

@@ -25,21 +25,15 @@ const GZD_INDEX = 1;
 const HK_INDEX = 2;
 const GRID_INDEX = 3;
 
-const MgrsGraticule = (props) => {
+const MgrsGraticule = () => {
   let map = useMap();
-
-  const canvas = document.createElement('canvas');
-  canvas.classList.add('leaflet-zoom-animated');
-
-  let g = new Graticule({ map: map, canvas: canvas });
-  map.addLayer(g);
+  let g = new Graticule(map);
 
   return null;
 };
 
-class Graticule extends Layer {
-  constructor(props) {
-    super(props);
+class Graticule {
+  constructor(map) {
     this.currLatInterval = 8;
     this.currLngInterval = 6;
 
@@ -64,27 +58,20 @@ class Graticule extends Layer {
       oneKMinZoom: 12,
     };
 
-    this.map = props.map;
-    this.canvas = props.canvas;
+    this.options = this.defaultOptions;
+    this.map = map;
+    this.canvas = document.createElement('canvas');
+    this.canvas.classList.add('leaflet-zoom-animated');
 
-    this.options = (props && props.options) || this.defaultOptions;
-  }
+    // Add the canvas only if it hasn't already been added
+    if (!this.map.getPanes().overlayPane.hasChildNodes()) {
+      this.map.getPanes().overlayPane.appendChild(this.canvas);
+    }
 
-  onAdd(map) {
-    map._panes.overlayPane.appendChild(this.canvas);
-    map.on('viewreset', this.reset, this);
-    map.on('move', this.reset, this);
+    this.map.on('viewreset', this.reset, this);
+    this.map.on('move', this.reset, this);
 
     this.reset();
-  }
-
-  onRemove(map) {
-    map._panes.overlayPane.removeChild(this.canvas);
-    map.off('viewreset', this.reset, this);
-    map.off('move', this.reset, this);
-
-    this.canvas = null;
-    this.map = null;
   }
 
   reset() {

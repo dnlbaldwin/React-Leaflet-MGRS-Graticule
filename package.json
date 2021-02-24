@@ -25,7 +25,12 @@
     "gzd-utils": "^1.0.3",
     "leaflet": "^1.7.1",
     "mgrs": "^1.0.0",
-    "react-leaflet": "^3.1.0"
+    "react-leaflet": "^3.1.0",
+    "utm-latlng": "^1.0.6"
+  },
+  "peerDependencies": {
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
   },
   "devDependencies": {
     "@types/leaflet": "^1.5.19",
