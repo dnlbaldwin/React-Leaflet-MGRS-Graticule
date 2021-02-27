@@ -76,14 +76,8 @@ function App() {
             attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           />
         </LayersControl.BaseLayer>
-
-        <MapConsumer>
-          {(map) => {
-            MgrsGraticule(map);
-            return null;
-          }}
-        </MapConsumer>
       </LayersControl>
+      <MgrsGraticule />
     </MapContainer>
   );
 }
