@@ -625,8 +625,10 @@ class Graticule {
       let startingEasting = this.map.getCenter().lat >= 0 ? swCornerUtm.easting : nwCornerUtm.easting;
       let finalEasting = this.map.getCenter().lat >= 0 ? seCornerUtm.easting : neCornerUtm.easting;
 
-      let startingNorthing = swCornerUtm.northing;
-      let finalNorthing = neCornerUtm.northing;
+      // Since northings are not perfectly horizontal, we need to find the 'largest' northing value
+      // in order to make sure that the entire screen has a grid over it
+      let startingNorthing = swCornerUtm.northing > seCornerUtm.northing ? seCornerUtm.northing : swCornerUtm.northing;
+      let finalNorthing = nwCornerUtm.northing > neCornerUtm.northing ? nwCornerUtm.northing : neCornerUtm.northing;
 
       startingEasting = Math.floor(startingEasting / this.mgrsGridInterval) * this.mgrsGridInterval;
       finalEasting = Math.ceil(finalEasting / this.mgrsGridInterval) * this.mgrsGridInterval;

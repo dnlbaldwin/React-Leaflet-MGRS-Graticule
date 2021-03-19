@@ -35,6 +35,9 @@ function App() {
             attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           />
         </LayersControl.BaseLayer>
+        <LayersControl.BaseLayer name="OSM Topo">
+          <TileLayer url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png" attribution="OSM" />
+        </LayersControl.BaseLayer>
         <LayersControl.Overlay checked name="MGRS graticule">
           <LayerGroup>
             <MgrsGraticule />
