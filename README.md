@@ -40,7 +40,7 @@ npm test
 
 ```js
 import React from 'react';
-import { LayersControl, MapConsumer, MapContainer, TileLayer } from 'react-leaflet';
+import { LayerGroup, LayersControl, MapContainer, TileLayer } from 'react-leaflet';
 import { MgrsGraticule } from 'react-leaflet-mgrs-graticule';
 import './App.css';
 
@@ -76,8 +76,15 @@ function App() {
             attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           />
         </LayersControl.BaseLayer>
+        <LayersControl.BaseLayer name="OSM Topo">
+          <TileLayer url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png" attribution="OSM" />
+        </LayersControl.BaseLayer>
+        <LayersControl.Overlay checked name="MGRS graticule">
+          <LayerGroup>
+            <MgrsGraticule />
+          </LayerGroup>
+        </LayersControl.Overlay>
       </LayersControl>
-      <MgrsGraticule />
     </MapContainer>
   );
 }
@@ -85,12 +92,10 @@ function App() {
 export default App;
 ```
 
-## Roadmap
+## Roadmap v0.2.0
 
-- ~~Burndown existing issues.~~
-- ~~Merge three graticule classes into a single class to reduce SLOC. These classes already have implied dependencies on eachother so might as well merge them.~~
+- Burndown existing issues.
 - Figure out how to unit-test canvas.
-- ~~Deploy to NPM.~~
 
 ## License
 
