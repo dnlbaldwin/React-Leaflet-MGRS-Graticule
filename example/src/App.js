@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayersControl, MapContainer, TileLayer } from 'react-leaflet';
+import { LayerGroup, LayersControl, MapContainer, TileLayer } from 'react-leaflet';
 import { MgrsGraticule } from 'react-leaflet-mgrs-graticule';
 import './App.css';
 
@@ -35,8 +35,11 @@ function App() {
             attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           />
         </LayersControl.BaseLayer>
-
-        <MgrsGraticule />
+        <LayersControl.Overlay checked name="MGRS graticule">
+          <LayerGroup>
+            <MgrsGraticule />
+          </LayerGroup>
+        </LayersControl.Overlay>
       </LayersControl>
     </MapContainer>
   );

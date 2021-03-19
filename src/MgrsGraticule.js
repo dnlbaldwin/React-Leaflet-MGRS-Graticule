@@ -70,11 +70,27 @@ class Graticule {
 
     this.map.on('viewreset', this.reset, this);
     this.map.on('move', this.reset, this);
+    this.map.on('overlayadd', this.showGraticule, this);
+    this.map.on('overlayremove', this.clearRect, this);
 
     this.reset();
   }
 
+  clearRect() {
+    let ctx = this.canvas.getContext('2d');
+    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.options.showGrid = false;
+  }
+
+  showGraticule() {
+    this.options.showGrid = true;
+    this.reset();
+  }
+
   reset() {
+    if (!this.options.showGrid) {
+      return;
+    }
     const mapSize = this.map.getSize();
     const mapLeftTop = this.map.containerPointToLayerPoint([0, 0]);
 
