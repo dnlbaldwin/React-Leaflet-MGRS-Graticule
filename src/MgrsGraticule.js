@@ -773,8 +773,7 @@ class Graticule {
               adjacentLlEasting = utmToLl(ea[eastingIndex + 1], northingElem, zoneNumber, zoneLetter);
 
               if (adjacentLlEasting.lng > effectiveEastBoundary) {
-                const slope = getLineSlope(currentLl, adjacentLlEasting);
-                adjacentLlEasting.lat = getAdjustedLatitude(slope, effectiveEastBoundary, adjacentLlEasting);
+                // Do not calcuate adjusted lat as we don't use it
                 adjacentLlEasting.lng = effectiveEastBoundary;
               }
             } else {
@@ -782,7 +781,15 @@ class Graticule {
             }
 
             if (na[northingIndex + 1]) {
-              adjacentLlNorthing = utmToLl(eastingElem, na[northingIndex + 1], zoneNumber, zoneLetter);
+              // The west-most HK label would be at a lower latitude than the adjacent east-most HK label.
+              // This is because the currentLl has been adjusted to be inside the GZD and as such the easting
+              // line needs to be adjusted too.  Rather than doing this, use the next northing in the adjacent
+              // easting line.
+              if (eastingIndex === 0) {
+                adjacentLlNorthing = utmToLl(ea[eastingIndex + 1], na[northingIndex + 1], zoneNumber, zoneLetter);
+              } else {
+                adjacentLlNorthing = utmToLl(eastingElem, na[northingIndex + 1], zoneNumber, zoneLetter);
+              }
             } else {
               return; // don't care about the very last index
             }
