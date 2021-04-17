@@ -760,45 +760,40 @@ class Graticule {
         const notHkLine = northingElem % 100000 !== 0;
         this._drawLine(ctx, notHkLine);
       });
-
-      let skipRemainder = false;
       // Draw the labels
       if (this.mgrsGridInterval === 100000) {
         eastingArray.forEach((eastingElem, eastingIndex, ea) => {
-          if (skipRemainder) {
-            return;
-          }
           northingArray.forEach((northingElem, northingIndex, na) => {
             let labelLl;
             let currentLl = utmToLl(eastingElem, northingElem, zoneNumber, zoneLetter);
             let adjacentLlNorthing;
             let adjacentLlEasting;
-            if (northingIndex === na.length - 1) {
-              return;
-            }
 
-            if (eastingIndex !== ea.length - 1) {
+            if (ea[eastingIndex + 1]) {
               adjacentLlEasting = utmToLl(ea[eastingIndex + 1], northingElem, zoneNumber, zoneLetter);
+
               if (adjacentLlEasting.lng > effectiveEastBoundary) {
                 const slope = getLineSlope(currentLl, adjacentLlEasting);
                 adjacentLlEasting.lat = getAdjustedLatitude(slope, effectiveEastBoundary, adjacentLlEasting);
                 adjacentLlEasting.lng = effectiveEastBoundary;
-                skipRemainder = true;
               }
             } else {
-              adjacentLlEasting = utmToLl(ea[eastingIndex - 1], northingElem, zoneNumber, zoneLetter);
+              return; // don't care about the very last index
             }
 
-            adjacentLlNorthing = utmToLl(eastingElem, na[northingIndex + 1], zoneNumber, zoneLetter);
+            if (na[northingIndex + 1]) {
+              adjacentLlNorthing = utmToLl(eastingElem, na[northingIndex + 1], zoneNumber, zoneLetter);
+            } else {
+              return; // don't care about the very last index
+            }
 
+            // Boundary check
             if (currentLl.lng < effectiveWestBoundary) {
               const slope = getLineSlope(currentLl, adjacentLlEasting);
               currentLl.lat = getAdjustedLatitude(slope, effectiveWestBoundary, currentLl);
               currentLl.lng = effectiveWestBoundary;
             } else if (currentLl.lng > effectiveEastBoundary) {
-              const slope = getLineSlope(currentLl, adjacentLlEasting);
-              currentLl.lat = getAdjustedLatitude(slope, effectiveEastBoundary, currentLl);
-              currentLl.lng = effectiveEastBoundary;
+              return; // don't care if the cursor is outside the effective bounds
             }
 
             if (L.latLng(currentLl).distanceTo(adjacentLlEasting) < 10000) {
