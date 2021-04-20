@@ -773,7 +773,8 @@ class Graticule {
               adjacentLlEasting = utmToLl(ea[eastingIndex + 1], northingElem, zoneNumber, zoneLetter);
 
               if (adjacentLlEasting.lng > effectiveEastBoundary) {
-                // Do not calcuate adjusted lat as we don't use it
+                const slope = getLineSlope(currentLl, adjacentLlEasting);
+                adjacentLlEasting.lat = getAdjustedLatitude(slope, effectiveEastBoundary, adjacentLlEasting);
                 adjacentLlEasting.lng = effectiveEastBoundary;
               }
             } else {
@@ -803,10 +804,6 @@ class Graticule {
               return; // don't care if the cursor is outside the effective bounds
             }
 
-            if (L.latLng(currentLl).distanceTo(adjacentLlEasting) < 10000) {
-              return;
-            }
-
             labelLl = {
               lat: (currentLl.lat + adjacentLlNorthing.lat) / 2,
               lng: (currentLl.lng + adjacentLlEasting.lng) / 2,
@@ -815,6 +812,14 @@ class Graticule {
             try {
               if (labelLl && effectiveBounds.contains(labelLl)) {
                 let labelText = llToMgrs([labelLl.lng, labelLl.lat]).match(MGRS_REGEX)[HK_INDEX];
+                if (
+                  this.map
+                    .latLngToContainerPoint(L.latLng(currentLl))
+                    .distanceTo(this.map.latLngToContainerPoint(L.latLng(adjacentLlEasting))) <
+                  ctx.measureText(labelText).width * 2
+                ) {
+                  return;
+                }
 
                 drawLabel(
                   ctx,
