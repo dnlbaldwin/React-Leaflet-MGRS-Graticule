@@ -651,6 +651,7 @@ class Graticule {
       // Lines of constant Eastings
 
       eastingArray.forEach((eastingElem, eastingIndex, eastArr) => {
+        let beginPathCalled = false;
         northingArray.forEach((northingElem, northingIndex, northArr) => {
           let gridIntersectionLl = utmToLl(eastingElem, northingElem, zoneNumber, zoneLetter);
 
@@ -663,33 +664,30 @@ class Graticule {
             return;
           }
           // This block will truncate the line at the southern boundary of the GZD
-          if (gridIntersectionLl.lat <= gzdSouthBoundary) {
+          if (gridIntersectionLl.lat < gzdSouthBoundary) {
             let nextIntersectionLl = utmToLl(eastingElem, northArr[northingIndex + 1], zoneNumber, zoneLetter);
             gridIntersectionLl = connectToGzdBoundary(gridIntersectionLl, nextIntersectionLl, 'North');
             // This block will truncate the line at the northern boundary of the GZD
           } else if (gridIntersectionLl.lat > gzdNorthBoundary) {
             let previousIntersectionLl = utmToLl(eastingElem, northArr[northingIndex - 1], zoneNumber, zoneLetter);
-
             gridIntersectionLl = connectToGzdBoundary(gridIntersectionLl, previousIntersectionLl, 'South');
           }
           let gridIntersectionXy;
-          if (gridIntersectionLl.lat && gridIntersectionLl.lng) {
+          if (Number.isFinite(gridIntersectionLl.lat) && Number.isFinite(gridIntersectionLl.lng)) {
             gridIntersectionXy = this.map.latLngToContainerPoint(gridIntersectionLl);
+            if (!beginPathCalled) {
+              ctx.beginPath();
+              ctx.moveTo(gridIntersectionXy.x, gridIntersectionXy.y);
+              beginPathCalled = true;
+            } else {
+              ctx.lineTo(gridIntersectionXy.x, gridIntersectionXy.y);
+            }
           } else {
             return;
-          }
-
-          if (northingIndex === 0) {
-            ctx.beginPath();
-            ctx.moveTo(gridIntersectionXy.x, gridIntersectionXy.y);
-          } else {
-            ctx.lineTo(gridIntersectionXy.x, gridIntersectionXy.y);
           }
         });
         const notHkLine = eastingElem % 100000 !== 0;
         this._drawLine(ctx, notHkLine);
-        // HACK - Begin path doesn't appear to get called in edge cases in the following loop
-        ctx.beginPath();
       });
 
       // Lines of constant Northings
