@@ -651,6 +651,7 @@ class Graticule {
       // Lines of constant Eastings
 
       eastingArray.forEach((eastingElem, eastingIndex, eastArr) => {
+        let beginPathCalled = false;
         northingArray.forEach((northingElem, northingIndex, northArr) => {
           let gridIntersectionLl = utmToLl(eastingElem, northingElem, zoneNumber, zoneLetter);
 
@@ -663,33 +664,30 @@ class Graticule {
             return;
           }
           // This block will truncate the line at the southern boundary of the GZD
-          if (gridIntersectionLl.lat <= gzdSouthBoundary) {
+          if (gridIntersectionLl.lat < gzdSouthBoundary) {
             let nextIntersectionLl = utmToLl(eastingElem, northArr[northingIndex + 1], zoneNumber, zoneLetter);
             gridIntersectionLl = connectToGzdBoundary(gridIntersectionLl, nextIntersectionLl, 'North');
             // This block will truncate the line at the northern boundary of the GZD
           } else if (gridIntersectionLl.lat > gzdNorthBoundary) {
             let previousIntersectionLl = utmToLl(eastingElem, northArr[northingIndex - 1], zoneNumber, zoneLetter);
-
             gridIntersectionLl = connectToGzdBoundary(gridIntersectionLl, previousIntersectionLl, 'South');
           }
           let gridIntersectionXy;
-          if (gridIntersectionLl.lat && gridIntersectionLl.lng) {
+          if (Number.isFinite(gridIntersectionLl.lat) && Number.isFinite(gridIntersectionLl.lng)) {
             gridIntersectionXy = this.map.latLngToContainerPoint(gridIntersectionLl);
+            if (!beginPathCalled) {
+              ctx.beginPath();
+              ctx.moveTo(gridIntersectionXy.x, gridIntersectionXy.y);
+              beginPathCalled = true;
+            } else {
+              ctx.lineTo(gridIntersectionXy.x, gridIntersectionXy.y);
+            }
           } else {
             return;
-          }
-
-          if (northingIndex === 0) {
-            ctx.beginPath();
-            ctx.moveTo(gridIntersectionXy.x, gridIntersectionXy.y);
-          } else {
-            ctx.lineTo(gridIntersectionXy.x, gridIntersectionXy.y);
           }
         });
         const notHkLine = eastingElem % 100000 !== 0;
         this._drawLine(ctx, notHkLine);
-        // HACK - Begin path doesn't appear to get called in edge cases in the following loop
-        ctx.beginPath();
       });
 
       // Lines of constant Northings
@@ -773,7 +771,8 @@ class Graticule {
               adjacentLlEasting = utmToLl(ea[eastingIndex + 1], northingElem, zoneNumber, zoneLetter);
 
               if (adjacentLlEasting.lng > effectiveEastBoundary) {
-                // Do not calcuate adjusted lat as we don't use it
+                const slope = getLineSlope(currentLl, adjacentLlEasting);
+                adjacentLlEasting.lat = getAdjustedLatitude(slope, effectiveEastBoundary, adjacentLlEasting);
                 adjacentLlEasting.lng = effectiveEastBoundary;
               }
             } else {
@@ -803,10 +802,6 @@ class Graticule {
               return; // don't care if the cursor is outside the effective bounds
             }
 
-            if (L.latLng(currentLl).distanceTo(adjacentLlEasting) < 10000) {
-              return;
-            }
-
             labelLl = {
               lat: (currentLl.lat + adjacentLlNorthing.lat) / 2,
               lng: (currentLl.lng + adjacentLlEasting.lng) / 2,
@@ -815,6 +810,14 @@ class Graticule {
             try {
               if (labelLl && effectiveBounds.contains(labelLl)) {
                 let labelText = llToMgrs([labelLl.lng, labelLl.lat]).match(MGRS_REGEX)[HK_INDEX];
+                if (
+                  this.map
+                    .latLngToContainerPoint(L.latLng(currentLl))
+                    .distanceTo(this.map.latLngToContainerPoint(L.latLng(adjacentLlEasting))) <
+                  ctx.measureText(labelText).width * 2
+                ) {
+                  return;
+                }
 
                 drawLabel(
                   ctx,
