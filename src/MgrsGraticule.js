@@ -599,21 +599,16 @@ class Graticule {
       const gzdSouthBoundary = gzdObject['geometry']['coordinates'][0][SW_INDEX][LATITUDE_INDEX];
 
       // If drawing HK grids, just draw the entire GZD regardless
-      let effectiveWestBoundary =
+      const effectiveWestBoundary =
         gzdWestBoundary < mapBounds.getWest() && this.mgrsGridInterval !== 100000
           ? mapBounds.getWest()
           : gzdWestBoundary;
-      let effectiveEastBoundary =
+      const effectiveEastBoundary =
         gzdEastBoundary > mapBounds.getEast() && this.mgrsGridInterval !== 100000
           ? mapBounds.getEast()
           : gzdEastBoundary;
-      let effectiveNorthBoundary = gzdNorthBoundary > mapBounds.getNorth() ? mapBounds.getNorth() : gzdNorthBoundary;
-      let effectiveSouthBoundary = gzdSouthBoundary < mapBounds.getSouth() ? mapBounds.getSouth() : gzdSouthBoundary;
-
-      const effectiveBounds = L.latLngBounds(
-        L.latLng(effectiveNorthBoundary, effectiveWestBoundary),
-        L.latLng(effectiveSouthBoundary, effectiveEastBoundary)
-      );
+      const effectiveNorthBoundary = gzdNorthBoundary > mapBounds.getNorth() ? mapBounds.getNorth() : gzdNorthBoundary;
+      const effectiveSouthBoundary = gzdSouthBoundary < mapBounds.getSouth() ? mapBounds.getSouth() : gzdSouthBoundary;
 
       // Buffer is used to ensure that if we're right on the GZD boundary that we don't get the adjacent GZD
       const buffer = 0.00001;
@@ -651,7 +646,8 @@ class Graticule {
       // Lines of constant Eastings
 
       eastingArray.forEach((eastingElem, eastingIndex, eastArr) => {
-        let beginPathCalled = false;
+        let initialPlacementCompleted = false;
+        ctx.beginPath();
         northingArray.forEach((northingElem, northingIndex, northArr) => {
           let gridIntersectionLl = utmToLl(eastingElem, northingElem, zoneNumber, zoneLetter);
 
@@ -675,10 +671,9 @@ class Graticule {
           let gridIntersectionXy;
           if (Number.isFinite(gridIntersectionLl.lat) && Number.isFinite(gridIntersectionLl.lng)) {
             gridIntersectionXy = this.map.latLngToContainerPoint(gridIntersectionLl);
-            if (!beginPathCalled) {
-              ctx.beginPath();
+            if (!initialPlacementCompleted) {
               ctx.moveTo(gridIntersectionXy.x, gridIntersectionXy.y);
-              beginPathCalled = true;
+              initialPlacementCompleted = true;
             } else {
               ctx.lineTo(gridIntersectionXy.x, gridIntersectionXy.y);
             }
@@ -704,16 +699,20 @@ class Graticule {
               ctx.beginPath();
               beginPathCalled = true;
             }
-
             return;
           }
+          // Need to check to see whether the next point will be inside the GZD if the current point isn't.
+          // From there we can truncate the first point so it's on the boundary.
           let gridIntersectionXy = this.map.latLngToContainerPoint(gridIntersectionLl);
-          if (eastingIndex === 0) {
-            ctx.beginPath();
-            beginPathCalled = true;
+          if (!beginPathCalled) {
             // Truncate the line to the effective western boundary
             if (gridIntersectionLl.lng < effectiveWestBoundary) {
               const nextGridIntersectionLl = utmToLl(eastArr[eastingIndex + 1], northingElem, zoneNumber, zoneLetter);
+              // If the next intersection isn't inside the boundary, return and try again on the
+              // next iteration
+              if (nextGridIntersectionLl.lng < effectiveWestBoundary) {
+                return;
+              }
               const slope = getLineSlope(gridIntersectionLl, nextGridIntersectionLl);
 
               try {
@@ -727,7 +726,8 @@ class Graticule {
                 console.trace();
               }
             }
-
+            ctx.beginPath();
+            beginPathCalled = true;
             ctx.moveTo(gridIntersectionXy.x, gridIntersectionXy.y);
           } else {
             // Truncate the line to the effective eastern boundary
@@ -808,6 +808,11 @@ class Graticule {
             };
 
             try {
+              const effectiveBounds = L.latLngBounds(
+                L.latLng(effectiveNorthBoundary, effectiveWestBoundary),
+                L.latLng(effectiveSouthBoundary, effectiveEastBoundary)
+              );
+
               if (labelLl && effectiveBounds.contains(labelLl)) {
                 let labelText = llToMgrs([labelLl.lng, labelLl.lat]).match(MGRS_REGEX)[HK_INDEX];
                 if (
