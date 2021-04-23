@@ -539,7 +539,7 @@ class Graticule {
     }
   }
 
-  getVizGrids() {
+  getVizGzds() {
     const nwBoundMgrs = llToMgrs(
       [this.map.getBounds().getNorthWest()['lng'], this.map.getBounds().getNorthWest()['lat']],
       1
@@ -556,15 +556,18 @@ class Graticule {
       [this.map.getBounds().getSouthWest()['lng'], this.map.getBounds().getSouthWest()['lat']],
       1
     );
-
-    let visibleGrids = getAllVisibleGzds(
-      nwBoundMgrs.match(MGRS_REGEX)[GZD_INDEX],
-      neBoundMgrs.match(MGRS_REGEX)[GZD_INDEX],
-      seBoundMgrs.match(MGRS_REGEX)[GZD_INDEX],
-      swBoundMgrs.match(MGRS_REGEX)[GZD_INDEX]
-    );
-
-    return visibleGrids;
+    let visibleGzds;
+    try {
+      visibleGzds = getAllVisibleGzds(
+        nwBoundMgrs.match(MGRS_REGEX)[GZD_INDEX],
+        neBoundMgrs.match(MGRS_REGEX)[GZD_INDEX],
+        seBoundMgrs.match(MGRS_REGEX)[GZD_INDEX],
+        swBoundMgrs.match(MGRS_REGEX)[GZD_INDEX]
+      );
+    } catch (e) {
+      visibleGzds = null;
+    }
+    return visibleGzds;
   }
 
   drawGrid(ctx) {
@@ -581,10 +584,15 @@ class Graticule {
     ctx.fillStyle = this.options.gridColor;
     ctx.setLineDash(this.options.dashArray);
     ctx.font = this.options.gridFont;
-    const visibleGzds = this.getVizGrids();
+    const visibleGzds = this.getVizGzds();
 
     const mapBounds = this.map.getBounds();
 
+    // Just return if there's no visible grids.  Possible if the getVizGzds
+    // has an exception
+    if (!visibleGzds) {
+      return;
+    }
     visibleGzds.forEach((gzd, gzdIndex, visibleGridArr) => {
       let gzdObject;
       try {
