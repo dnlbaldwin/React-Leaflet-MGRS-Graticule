@@ -92,10 +92,10 @@ function App() {
 export default App;
 ```
 
-## Roadmap v0.2.0
+## Roadmap v0.3.0
 
-- Burndown existing issues.
-- Figure out how to unit-test canvas.
+- Set graticule properties through props
+- Investigate adding HK labels when grids are displayed
 
 ## License
 
