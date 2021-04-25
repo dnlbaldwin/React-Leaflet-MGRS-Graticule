@@ -44,6 +44,12 @@ import { LayerGroup, LayersControl, MapContainer, TileLayer } from 'react-leafle
 import { MgrsGraticule } from 'react-leaflet-mgrs-graticule';
 import './App.css';
 
+// Assigning the same name to the overlay as it's named in the control box
+// makes it much easier to toggle it on and off when multiple overlays
+// are employed.
+const mgrsGraticuleName = 'MGRS';
+// Controls whether the overlay is displayed on map load
+const overlayEnabled = true;
 function App() {
   return (
     <MapContainer
@@ -70,7 +76,7 @@ function App() {
             attribution='&copy; <a href="https://wiki.openstreetmap.org/wiki/Esri"></a> contributors'
           />
         </LayersControl.BaseLayer>
-        <LayersControl.BaseLayer name="OSM Topo">
+        <LayersControl.BaseLayer name="OSM">
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -79,9 +85,9 @@ function App() {
         <LayersControl.BaseLayer name="OSM Topo">
           <TileLayer url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png" attribution="OSM" />
         </LayersControl.BaseLayer>
-        <LayersControl.Overlay checked name="MGRS graticule">
+        <LayersControl.Overlay checked={overlayEnabled} name={mgrsGraticuleName}>
           <LayerGroup>
-            <MgrsGraticule />
+            <MgrsGraticule name={mgrsGraticuleName} checked={overlayEnabled} />
           </LayerGroup>
         </LayersControl.Overlay>
       </LayersControl>

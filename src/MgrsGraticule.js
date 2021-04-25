@@ -25,27 +25,25 @@ const GZD_INDEX = 1;
 const HK_INDEX = 2;
 const GRID_INDEX = 3;
 
-const MgrsGraticule = () => {
+const MgrsGraticule = (props) => {
   let map = useMap();
-  let g = new Graticule(map);
+  let g = new Graticule(map, props.name, props.checked);
 
   return null;
 };
 
 class Graticule {
-  constructor(map) {
+  constructor(map, name, checked) {
     this.currLatInterval = 8;
     this.currLngInterval = 6;
 
     this.defaultOptions = {
       showGrid: true,
       showLabel: true,
-      opacity: 10,
       color: '#888888',
       font: '14px Courier New',
       fontColor: '#FFF',
       dashArray: [6, 6],
-      gzdMinZoom: 3,
       weight: 1.5,
       gridColor: '#000',
       hkColor: '#990000', //Font background colour and dash colour
@@ -62,29 +60,42 @@ class Graticule {
     this.map = map;
     this.canvas = document.createElement('canvas');
     this.canvas.classList.add('leaflet-zoom-animated');
-
-    // Add the canvas only if it hasn't already been added
-    if (!this.map.getPanes().overlayPane.hasChildNodes()) {
-      this.map.getPanes().overlayPane.appendChild(this.canvas);
-    }
+    this.canvas.classList.add(this.name);
 
     this.map.on('viewreset', this.reset, this);
     this.map.on('move', this.reset, this);
     this.map.on('overlayadd', this.showGraticule, this);
     this.map.on('overlayremove', this.clearRect, this);
 
-    this.reset();
+    // Strip any spaces as they can't be used in class names
+    this.name = name.replace(/\s/g, '');
+
+    if (checked) {
+      this.options.showGrid = true;
+      this.reset();
+    } else {
+      this.options.showGrid = false;
+    }
+
+    // Add the canvas only if it hasn't already been added
+    if (!this.map.getPanes().overlayPane.classList.contains(this.name)) {
+      this.map.getPanes().overlayPane.appendChild(this.canvas);
+    }
   }
 
-  clearRect() {
-    let ctx = this.canvas.getContext('2d');
-    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.options.showGrid = false;
+  clearRect(e) {
+    if (e.name === this.name) {
+      let ctx = this.canvas.getContext('2d');
+      ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.options.showGrid = false;
+    }
   }
 
-  showGraticule() {
-    this.options.showGrid = true;
-    this.reset();
+  showGraticule(e) {
+    if (e.name === this.name) {
+      this.options.showGrid = true;
+      this.reset();
+    }
   }
 
   reset() {
