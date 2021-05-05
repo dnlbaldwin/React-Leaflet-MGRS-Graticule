@@ -234,6 +234,10 @@ function getAllVisibleGzds(nwGzd, neGzd, seGzd, swGzd) {
     result.push('31U');
   }
 
+  if (nwGzd === '32V' && neGzd === '32V' && !result.includes('31U')) {
+    result.push('31U');
+  }
+
   return result;
 }
 
