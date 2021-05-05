@@ -371,4 +371,15 @@ describe('getAllVisibleGzds test cases', () => {
 
     expect(getAllVisibleGzds(nwGzd, neGzd, seGzd, swGzd)).toStrictEqual(result);
   });
+
+  it('Handle special case where 32V is NW and NE and 31U is the only other visible GZD', () => {
+    const nwGzd = '32V';
+    const neGzd = '32V';
+    const seGzd = '31U';
+    const swGzd = '31U';
+
+    const result = ['32U', '32V', '31U'];
+
+    expect(getAllVisibleGzds(nwGzd, neGzd, seGzd, swGzd)).toStrictEqual(result);
+  });
 });
