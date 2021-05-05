@@ -24,8 +24,7 @@
   "dependencies": {
     "gzd-utils": "^1.0.3",
     "leaflet": "^1.7.1",
-    "mgrs": "^1.0.0",
-    "utm-latlng": "^1.0.6"
+    "mgrs": "^1.0.0"
   },
   "peerDependencies": {
     "react": "^17.0.1",

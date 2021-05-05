@@ -667,41 +667,44 @@ class Graticule {
       eastingArray.forEach((eastingElem, eastingIndex, eastArr) => {
         let initialPlacementCompleted = false;
         ctx.beginPath();
-        northingArray.forEach((northingElem, northingIndex, northArr) => {
-          let gridIntersectionLl = utmToLl(eastingElem, northingElem, zoneNumber, zoneLetter);
+        // HACK - If you navigate to the A/B or X/Y GZDs gzd-utils will crash.  Catch the exception.
+        try {
+          northingArray.forEach((northingElem, northingIndex, northArr) => {
+            let gridIntersectionLl = utmToLl(eastingElem, northingElem, zoneNumber, zoneLetter);
 
-          // The grid array is larger than the GZD.  As such the first and last elements of the easting/northing
-          // arrays will be outside of the GZD.  These points are required because they are used to derive the
-          // point of intersection with the GZD boundary.
-          if (gridIntersectionLl.lng > gzdEastBoundary) {
-            return;
-          } else if (gridIntersectionLl.lng < gzdWestBoundary) {
-            return;
-          }
-          // This block will truncate the line at the southern boundary of the GZD
-          if (gridIntersectionLl.lat < gzdSouthBoundary) {
-            let nextIntersectionLl = utmToLl(eastingElem, northArr[northingIndex + 1], zoneNumber, zoneLetter);
-            gridIntersectionLl = connectToGzdBoundary(gridIntersectionLl, nextIntersectionLl, 'North');
-            // This block will truncate the line at the northern boundary of the GZD
-          } else if (gridIntersectionLl.lat > gzdNorthBoundary) {
-            let previousIntersectionLl = utmToLl(eastingElem, northArr[northingIndex - 1], zoneNumber, zoneLetter);
-            gridIntersectionLl = connectToGzdBoundary(gridIntersectionLl, previousIntersectionLl, 'South');
-          }
-          let gridIntersectionXy;
-          if (Number.isFinite(gridIntersectionLl.lat) && Number.isFinite(gridIntersectionLl.lng)) {
-            gridIntersectionXy = this.map.latLngToContainerPoint(gridIntersectionLl);
-            if (!initialPlacementCompleted) {
-              ctx.moveTo(gridIntersectionXy.x, gridIntersectionXy.y);
-              initialPlacementCompleted = true;
-            } else {
-              ctx.lineTo(gridIntersectionXy.x, gridIntersectionXy.y);
+            // The grid array is larger than the GZD.  As such the first and last elements of the easting/northing
+            // arrays will be outside of the GZD.  These points are required because they are used to derive the
+            // point of intersection with the GZD boundary.
+            if (gridIntersectionLl.lng > gzdEastBoundary) {
+              return;
+            } else if (gridIntersectionLl.lng < gzdWestBoundary) {
+              return;
             }
-          } else {
-            return;
-          }
-        });
-        const notHkLine = eastingElem % 100000 !== 0;
-        this._drawLine(ctx, notHkLine);
+            // This block will truncate the line at the southern boundary of the GZD
+            if (gridIntersectionLl.lat < gzdSouthBoundary) {
+              let nextIntersectionLl = utmToLl(eastingElem, northArr[northingIndex + 1], zoneNumber, zoneLetter);
+              gridIntersectionLl = connectToGzdBoundary(gridIntersectionLl, nextIntersectionLl, 'North');
+              // This block will truncate the line at the northern boundary of the GZD
+            } else if (gridIntersectionLl.lat > gzdNorthBoundary) {
+              let previousIntersectionLl = utmToLl(eastingElem, northArr[northingIndex - 1], zoneNumber, zoneLetter);
+              gridIntersectionLl = connectToGzdBoundary(gridIntersectionLl, previousIntersectionLl, 'South');
+            }
+            let gridIntersectionXy;
+            if (Number.isFinite(gridIntersectionLl.lat) && Number.isFinite(gridIntersectionLl.lng)) {
+              gridIntersectionXy = this.map.latLngToContainerPoint(gridIntersectionLl);
+              if (!initialPlacementCompleted) {
+                ctx.moveTo(gridIntersectionXy.x, gridIntersectionXy.y);
+                initialPlacementCompleted = true;
+              } else {
+                ctx.lineTo(gridIntersectionXy.x, gridIntersectionXy.y);
+              }
+            } else {
+              return;
+            }
+          });
+          const notHkLine = eastingElem % 100000 !== 0;
+          this._drawLine(ctx, notHkLine);
+        } catch (e) {}
       });
 
       // Lines of constant Northings
