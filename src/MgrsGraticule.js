@@ -1,16 +1,14 @@
-import { utmToLl, llToUtm, llToMgrs } from './Coordinates';
-import { Layer } from 'leaflet';
-import { useMap } from 'react-leaflet';
-
 import {
   connectToGzdBoundary,
   drawLabel,
   getAdjustedLatitude,
-  getAdjustedLongitude,
   getAllVisibleGzds,
+  getGzd,
   getLineSlope,
 } from './CommonUtils';
-import { getGZD } from 'gzd-utils';
+import { llToMgrs, llToUtm, utmToLl } from './Coordinates';
+
+import { useMap } from 'react-leaflet';
 
 // The following indicies are used to indentify coordinates returned from gzd-utils
 const SW_INDEX = 0;
@@ -27,19 +25,18 @@ const GRID_INDEX = 3;
 
 const MgrsGraticule = (props) => {
   let map = useMap();
-  let g = new Graticule(map, props.name, props.checked);
+  let g = new Graticule(map, props.name, props.checked, props.options);
 
   return null;
 };
 
 class Graticule {
-  constructor(map, name, checked) {
+  constructor(map, name, checked, opt) {
     this.currLatInterval = 8;
     this.currLngInterval = 6;
 
     this.defaultOptions = {
       showGrid: true,
-      showLabel: true,
       color: '#888888',
       font: '14px Courier New',
       fontColor: '#FFF',
@@ -54,9 +51,12 @@ class Graticule {
       hundredKMinZoom: 6,
       tenKMinZoom: 9,
       oneKMinZoom: 12,
+      hundredMMinZoom: 15,
     };
 
-    this.options = this.defaultOptions;
+    // Override any default options with the options passed from props
+    this.options = { ...this.defaultOptions, ...opt };
+
     this.map = map;
     this.canvas = document.createElement('canvas');
     this.canvas.classList.add('leaflet-zoom-animated');
@@ -110,7 +110,9 @@ class Graticule {
     this.canvas.width = mapSize.x;
     this.canvas.height = mapSize.y;
 
-    if (this.map.getZoom() > this.options.oneKMinZoom) {
+    if (this.map.getZoom() > this.options.hundredMMinZoom) {
+      this.mgrsGridInterval = 100; //100m resolution
+    } else if (this.map.getZoom() > this.options.oneKMinZoom) {
       this.mgrsGridInterval = 1000; //1k resolution
     } else if (this.map.getZoom() > this.options.tenKMinZoom) {
       this.mgrsGridInterval = 10000; //10k resolution
@@ -524,10 +526,13 @@ class Graticule {
    */
   _getLabelText(element) {
     // Divide by 1000 so that the labels will always be correct (10k vs 1k resolution)
-    let label = ((element % 100000) / 1000).toString();
+    let label =
+      this.mgrsGridInterval === 10000 || this.mgrsGridInterval === 1000
+        ? ((element % 100000) / 1000).toString()
+        : ((element % 100000) / 100).toString();
 
-    if (this.mgrsGridInterval === 10000 && label === '0') {
-      label = '00';
+    if (this.mgrsGridInterval === 100) {
+      label = label.padStart(3, '0');
     }
 
     return label;
@@ -604,18 +609,18 @@ class Graticule {
     if (!visibleGzds) {
       return;
     }
-    visibleGzds.forEach((gzd, gzdIndex, visibleGridArr) => {
+    visibleGzds.forEach((gzd) => {
       let gzdObject;
       try {
-        gzdObject = getGZD(gzd);
+        gzdObject = getGzd(gzd);
       } catch (e) {
         return;
       }
 
-      const gzdWestBoundary = gzdObject['geometry']['coordinates'][0][NW_INDEX][LONGITUDE_INDEX];
-      const gzdEastBoundary = gzdObject['geometry']['coordinates'][0][NE_INDEX][LONGITUDE_INDEX];
-      const gzdNorthBoundary = gzdObject['geometry']['coordinates'][0][NW_INDEX][LATITUDE_INDEX];
-      const gzdSouthBoundary = gzdObject['geometry']['coordinates'][0][SW_INDEX][LATITUDE_INDEX];
+      const gzdWestBoundary = gzdObject[NW_INDEX][LONGITUDE_INDEX];
+      const gzdEastBoundary = gzdObject[NE_INDEX][LONGITUDE_INDEX];
+      const gzdNorthBoundary = gzdObject[NW_INDEX][LATITUDE_INDEX];
+      const gzdSouthBoundary = gzdObject[SW_INDEX][LATITUDE_INDEX];
 
       // If drawing HK grids, just draw the entire GZD regardless
       const effectiveWestBoundary =
