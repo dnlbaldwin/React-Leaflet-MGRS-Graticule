@@ -1,20 +1,13 @@
 {
   "files": {
-    "main.css": "/React-Leaflet-MGRS-Graticule/static/css/main.29baa6b9.chunk.css",
-    "main.js": "/React-Leaflet-MGRS-Graticule/static/js/main.4c543061.chunk.js",
-    "main.js.map": "/React-Leaflet-MGRS-Graticule/static/js/main.4c543061.chunk.js.map",
-    "runtime-main.js": "/React-Leaflet-MGRS-Graticule/static/js/runtime-main.9caae210.js",
-    "runtime-main.js.map": "/React-Leaflet-MGRS-Graticule/static/js/runtime-main.9caae210.js.map",
-    "static/js/2.8cd41b08.chunk.js": "/React-Leaflet-MGRS-Graticule/static/js/2.8cd41b08.chunk.js",
-    "static/js/2.8cd41b08.chunk.js.map": "/React-Leaflet-MGRS-Graticule/static/js/2.8cd41b08.chunk.js.map",
+    "main.css": "/React-Leaflet-MGRS-Graticule/static/css/main.b612e82a.css",
+    "main.js": "/React-Leaflet-MGRS-Graticule/static/js/main.c4bf8562.js",
     "index.html": "/React-Leaflet-MGRS-Graticule/index.html",
-    "static/css/main.29baa6b9.chunk.css.map": "/React-Leaflet-MGRS-Graticule/static/css/main.29baa6b9.chunk.css.map",
-    "static/js/2.8cd41b08.chunk.js.LICENSE.txt": "/React-Leaflet-MGRS-Graticule/static/js/2.8cd41b08.chunk.js.LICENSE.txt"
+    "main.b612e82a.css.map": "/React-Leaflet-MGRS-Graticule/static/css/main.b612e82a.css.map",
+    "main.c4bf8562.js.map": "/React-Leaflet-MGRS-Graticule/static/js/main.c4bf8562.js.map"
   },
   "entrypoints": [
-    "static/js/runtime-main.9caae210.js",
-    "static/js/2.8cd41b08.chunk.js",
-    "static/css/main.29baa6b9.chunk.css",
-    "static/js/main.4c543061.chunk.js"
+    "static/css/main.b612e82a.css",
+    "static/js/main.c4bf8562.js"
   ]
 }
