@@ -22,7 +22,6 @@
   "author": "Dan Baldwin",
   "license": "MIT",
   "dependencies": {
-    "gzd-utils": "^1.0.3",
     "leaflet": "^1.7.1",
     "mgrs": "^1.0.0"
   },
@@ -34,6 +33,6 @@
   "devDependencies": {
     "@types/leaflet": "^1.5.19",
     "@types/react-leaflet": "^2.5.2",
-    "react-scripts": "^4.0.2"
+    "react-scripts": "^5.0.1"
   }
 }
