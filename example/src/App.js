@@ -1,7 +1,9 @@
-import React from 'react';
-import { LayerGroup, LayersControl, MapContainer, TileLayer } from 'react-leaflet';
-import { MgrsGraticule } from 'react-leaflet-mgrs-graticule';
 import './App.css';
+
+import { LayerGroup, LayersControl, MapContainer, TileLayer } from 'react-leaflet';
+
+import { MgrsGraticule } from 'react-leaflet-mgrs-graticule';
+import React from 'react';
 
 // Assigning the same name to the overlay as it's named in the control box
 // makes it much easier to toggle it on and off when multiple overlays
@@ -9,13 +11,18 @@ import './App.css';
 const mgrsGraticuleName = 'MGRS';
 // Controls whether the overlay is displayed on map load
 const overlayEnabled = true;
+
+const graticuleOptions = {
+  font: '18px Courier New',
+  gridFont: '18px Courier New',
+};
 function App() {
   return (
     <MapContainer
       center={[45.4, -75.7]}
       zoom={7}
       minZoom={3}
-      maxZoom={16}
+      maxZoom={18}
       maxNativeZoom={15}
       maxBounds={[
         [-90, -180],
@@ -46,7 +53,7 @@ function App() {
         </LayersControl.BaseLayer>
         <LayersControl.Overlay checked={overlayEnabled} name={mgrsGraticuleName}>
           <LayerGroup>
-            <MgrsGraticule name={mgrsGraticuleName} checked={overlayEnabled} />
+            <MgrsGraticule name={mgrsGraticuleName} checked={overlayEnabled} options={graticuleOptions} />
           </LayerGroup>
         </LayersControl.Overlay>
       </LayersControl>

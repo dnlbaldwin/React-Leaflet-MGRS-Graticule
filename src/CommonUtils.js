@@ -1,4 +1,3 @@
-import { getGZD } from 'gzd-utils';
 import { forward } from 'mgrs';
 
 // The following indicies are used to indentify coordinates returned from gzd-utils
@@ -11,6 +10,8 @@ const LATITUDE_INDEX = 1;
 
 const TEN_K_MGRS_REGEX = /([0-9]+[A-Z])([A-Z]{2})([0-9]{2})/;
 const GZD_INDEX = 1;
+
+const latBands = 'CDEFGHJKLMNPQRSTUVWX';
 /**
  *
  * @param {*} pointOne
@@ -93,9 +94,7 @@ function connectToGzdBoundary(pointOne, pointTwo, direction) {
 
   switch (direction) {
     case 'East':
-      const gzdEastLongitude = getGZD(grid.match(TEN_K_MGRS_REGEX)[GZD_INDEX]).geometry.coordinates[0][NE_INDEX][
-        LONGITUDE_INDEX
-      ];
+      const gzdEastLongitude = getGzd(grid.match(TEN_K_MGRS_REGEX)[GZD_INDEX])[NE_INDEX][LONGITUDE_INDEX];
 
       adjustedLatitude = getAdjustedLatitude(slope, gzdEastLongitude, pointTwo);
       adjustedLongitude = gzdEastLongitude;
@@ -103,18 +102,14 @@ function connectToGzdBoundary(pointOne, pointTwo, direction) {
       return { lat: adjustedLatitude, lng: adjustedLongitude };
 
     case 'West':
-      const gzdWestLongitude = getGZD(grid.match(TEN_K_MGRS_REGEX)[GZD_INDEX]).geometry.coordinates[0][NW_INDEX][
-        LONGITUDE_INDEX
-      ];
+      const gzdWestLongitude = getGzd(grid.match(TEN_K_MGRS_REGEX)[GZD_INDEX])[NW_INDEX][LONGITUDE_INDEX];
 
       adjustedLatitude = getAdjustedLatitude(slope, gzdWestLongitude, pointTwo);
 
       adjustedLongitude = gzdWestLongitude;
       return { lat: adjustedLatitude, lng: adjustedLongitude };
     case 'North':
-      const gzdNorthLatitude = getGZD(grid.match(TEN_K_MGRS_REGEX)[GZD_INDEX]).geometry.coordinates[0][NW_INDEX][
-        LATITUDE_INDEX
-      ];
+      const gzdNorthLatitude = getGzd(grid.match(TEN_K_MGRS_REGEX)[GZD_INDEX])[NW_INDEX][LATITUDE_INDEX];
 
       adjustedLongitude = getAdjustedLongitude(slope, gzdNorthLatitude, pointTwo);
 
@@ -135,9 +130,7 @@ function connectToGzdBoundary(pointOne, pointTwo, direction) {
       return { lat: adjustedLatitude, lng: adjustedLongitude };
 
     case 'South':
-      const gzdSouthLatitude = getGZD(grid.match(TEN_K_MGRS_REGEX)[GZD_INDEX]).geometry.coordinates[0][SW_INDEX][
-        LATITUDE_INDEX
-      ];
+      const gzdSouthLatitude = getGzd(grid.match(TEN_K_MGRS_REGEX)[GZD_INDEX])[SW_INDEX][LATITUDE_INDEX];
 
       adjustedLongitude = getAdjustedLongitude(slope, gzdSouthLatitude, pointTwo);
 
@@ -256,12 +249,86 @@ function drawLabel(ctx, labelText, textColor, backgroundColor, labelPosition) {
   ctx.fillText(labelText, labelX - textWidth / 2, labelY);
 }
 
+//Credit: https://github.com/gustavlarson/gzd-utils/blob/main/src/gzd-utils.ts
+function getGzd(gzd) {
+  const lngBand = parseInt(gzd, 10);
+  const latBand = gzd.replace(lngBand.toString(), '');
+
+  // Validate
+  if (lngBand < 1 || lngBand > 60) {
+    throw new RangeError('longitudeBand must be between 1 and 60');
+  }
+  if (latBand.length !== 1) {
+    throw new RangeError('Invalid latitudeBand provided, should be one letter');
+  }
+  if (!latBands.includes(latBand)) {
+    throw new RangeError(`Invalid latitudeBand provided, valid bands: ${latBands}`);
+  }
+  // Handle invalid zones 32X, 34X, 36X around Svalbard
+  if (latBand === 'X' && (lngBand === 32 || lngBand === 34 || lngBand === 36)) {
+    throw new RangeError('Invalid band');
+  }
+  /*
+   * Longitude bands 1..60 6° each, covering -180W to 180E
+   */
+  let longitudeMin = -180 + (lngBand - 1) * 6;
+  let longitudeMax = longitudeMin + 6;
+
+  /*
+   * Latitude bands C..X 8° each, covering 80°S to 84°N
+   * Except band X covering 12°
+   */
+  const i = latBands.indexOf(latBand);
+  const latitudeMin = -80 + i * 8;
+  let latitudeMax;
+  if (latBand !== 'X') {
+    latitudeMax = latitudeMin + 8;
+  } else {
+    latitudeMax = latitudeMin + 12;
+  }
+
+  /*
+   * Special case around Norway:
+   * Zone 32V is extended 3° west and 31V is shrunk 3°
+   */
+  if (lngBand === 31 && latBand === 'V') {
+    longitudeMax -= 3;
+  } else if (lngBand === 32 && latBand === 'V') {
+    longitudeMin -= 3;
+  }
+
+  /*
+   * Special case around Svalbard:
+   * - 31X and 37X extended 3°
+   * - 33X and 35X extended 6°
+   */
+  if (lngBand === 31 && latBand === 'X') {
+    longitudeMax += 3;
+  } else if (lngBand === 33 && latBand === 'X') {
+    longitudeMin -= 3;
+    longitudeMax += 3;
+  } else if (lngBand === 35 && latBand === 'X') {
+    longitudeMin -= 3;
+    longitudeMax += 3;
+  } else if (lngBand === 37 && latBand === 'X') {
+    longitudeMin -= 3;
+  }
+
+  return [
+    [longitudeMin, latitudeMin],
+    [longitudeMin, latitudeMax],
+    [longitudeMax, latitudeMax],
+    [longitudeMax, latitudeMin],
+  ];
+}
+
 export {
   connectToGzdBoundary,
   drawLabel,
   getAdjustedLatitude,
   getAdjustedLongitude,
   getAllVisibleGzds,
+  getGzd,
   getLineSlope,
   getNextMgrsGzdCharacter,
 };
