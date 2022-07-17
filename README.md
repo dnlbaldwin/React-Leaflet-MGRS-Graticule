@@ -12,7 +12,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-This library uses React-Leaflet-V3. It is not tested with React-Leaflet-V2.
+This library is compatible with React-Leaflet V3 or V4. It is not tested with React-Leaflet-V2.
 
 ### Installing
 

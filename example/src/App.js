@@ -1,7 +1,8 @@
 import './App.css';
-
-import { LayerGroup, LayersControl, MapContainer, TileLayer } from 'react-leaflet';
-
+import { TileLayer } from 'react-leaflet/TileLayer'
+import { MapContainer } from 'react-leaflet/MapContainer'
+import { LayerGroup } from 'react-leaflet/LayerGroup'
+import { LayersControl } from 'react-leaflet/LayersControl'
 import { MgrsGraticule } from 'react-leaflet-mgrs-graticule';
 import React from 'react';
 

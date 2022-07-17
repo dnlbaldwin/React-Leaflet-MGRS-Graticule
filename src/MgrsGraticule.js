@@ -8,7 +8,7 @@ import {
 } from './CommonUtils';
 import { llToMgrs, llToUtm, utmToLl } from './Coordinates';
 
-import { useMap } from 'react-leaflet';
+import { useMap } from 'react-leaflet/hooks';
 
 // The following indicies are used to indentify coordinates returned from gzd-utils
 const SW_INDEX = 0;
