@@ -27,10 +27,10 @@
   },
   "peerDependencies": {
     "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "react-scripts": "^5.0.1"
+    "react-dom": "^18.0.0"
   },
   "devDependencies": {
+    "react-scripts": "^5.0.1",
     "@types/leaflet": "^1.5.19"
   }
 }
