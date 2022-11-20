@@ -235,13 +235,16 @@ function getAllVisibleGzds(nwGzd, neGzd, seGzd, swGzd) {
 }
 
 function drawLabel(ctx, labelText, textColor, backgroundColor, labelPosition) {
-  const textWidth = ctx.measureText(labelText).width;
-  const textHeight = ctx.measureText(labelText).fontBoundingBoxAscent;
+  const textDimensions = ctx.measureText(labelText);
+  const textWidth = textDimensions.width;
+  // fontBoundingBoxAscent has to be explicitly enabled in Firefox, so check for that
+  const textHeight = textDimensions.fontBoundingBoxAscent
+    ? textDimensions.fontBoundingBoxAscent
+    : parseInt(ctx.font, 10) - 4;
 
   // Calculate label xy position
   const labelX = labelPosition.x;
   const labelY = labelPosition.y;
-
   ctx.fillStyle = backgroundColor;
   // Magic numbers will centre the rectangle over the text
   ctx.fillRect(labelX - textWidth / 2 - 1, labelY - textHeight + 1, textWidth + 3, textHeight + 2);

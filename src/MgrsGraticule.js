@@ -39,14 +39,14 @@ class Graticule {
       showGrid: true,
       color: '#888888',
       font: '14px Courier New',
-      fontColor: '#FFF',
+      fontColor: '#ffffff',
       dashArray: [6, 6],
       weight: 1.5,
       gridColor: '#000',
       hkColor: '#990000', //Font background colour and dash colour
       hkDashArray: [4, 4],
       gridFont: '14px Courier New',
-      gridFontColor: '#FFF',
+      gridFontColor: '#ffffff',
       gridDashArray: [],
       hundredKMinZoom: 6,
       tenKMinZoom: 9,
@@ -61,6 +61,8 @@ class Graticule {
     this.canvas = document.createElement('canvas');
     this.canvas.classList.add('leaflet-zoom-animated');
     this.canvas.classList.add(this.name);
+
+    this.ctx = this.canvas.getContext('2d');
 
     this.map.on('viewreset', this.reset, this);
     this.map.on('move', this.reset, this);
@@ -122,14 +124,13 @@ class Graticule {
       this.mgrsGridInterval = null;
     }
 
-    let ctx = this.canvas.getContext('2d');
-    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.drawGrid(ctx);
-    this.drawGzd(ctx);
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.drawGrid(this.ctx);
+    this.drawGzd(this.ctx);
   }
 
   drawGzd(ctx) {
-    if (!this.canvas || !this.map) {
+    if (!this.canvas || !this.map || !this.ctx) {
       return;
     }
 
@@ -454,15 +455,14 @@ class Graticule {
     }
     ctx.stroke();
 
-    this.drawGzdLabels(ctx, tick);
+    this.drawGzdLabels(tick);
   }
 
   /** This function encapsulates drawing labels for GZDs
    *
-   * @param {Obj} ctx - The HTML5 canvas' context
    * @param {Int} longitude - The longitude (representing a boundary of a GZD) for which needs labels drawn for
    */
-  drawGzdLabels(ctx, longitude) {
+  drawGzdLabels(longitude) {
     // -76 = middle latitude of the 'C' band - place the label in the middle
     for (let labelLatitude = -76; labelLatitude < 84; labelLatitude += 8) {
       let labelLongitude;
@@ -515,7 +515,7 @@ class Graticule {
           lng: labelLongitude,
         });
 
-        drawLabel(ctx, gzdLabel, this.options.fontColor, this.options.color, labelXy);
+        drawLabel(this.ctx, gzdLabel, this.options.fontColor, this.options.color, labelXy);
       }
     }
   }
@@ -713,7 +713,7 @@ class Graticule {
       });
 
       // Lines of constant Northings
-      northingArray.forEach((northingElem, northingIndex, northArr) => {
+      northingArray.forEach((northingElem) => {
         let beginPathCalled = false;
         eastingArray.forEach((eastingElem, eastingIndex, eastArr) => {
           let gridIntersectionLl = utmToLl(eastingElem, northingElem, zoneNumber, zoneLetter);
@@ -852,7 +852,7 @@ class Graticule {
                 }
 
                 drawLabel(
-                  ctx,
+                  this.ctx,
                   labelText,
                   this.options.gridFontColor,
                   this.options.hkColor,
@@ -878,14 +878,14 @@ class Graticule {
 
             let labelText = this._getLabelText(eastingElem);
 
-            drawLabel(ctx, labelText, this.options.gridFontColor, this.options.gridColor, {
+            drawLabel(this.ctx, labelText, this.options.gridFontColor, this.options.gridColor, {
               x: labelXy.x,
               y: labelXy.y - 15,
             });
           }
         });
 
-        northingArray.forEach((northingElem, northingIndex, na) => {
+        northingArray.forEach((northingElem) => {
           let labelXy;
           try {
             let labelLl = utmToLl(eastingArray[eastingArray.length - 1], northingElem, zoneNumber, zoneLetter);
@@ -897,7 +897,7 @@ class Graticule {
 
           let labelText = this._getLabelText(northingElem);
 
-          drawLabel(ctx, labelText, this.options.gridFontColor, this.options.gridColor, {
+          drawLabel(this.ctx, labelText, this.options.gridFontColor, this.options.gridColor, {
             x: labelXy.x - 15,
             y: labelXy.y,
           });
