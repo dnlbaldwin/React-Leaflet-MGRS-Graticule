@@ -25,10 +25,6 @@
     "leaflet": "^1.7.1",
     "mgrs": "^1.0.0"
   },
-  "peerDependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
-  },
   "devDependencies": {
     "react-scripts": "^5.0.1",
     "@types/leaflet": "^1.5.19"
