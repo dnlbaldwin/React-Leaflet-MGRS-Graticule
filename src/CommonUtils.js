@@ -240,7 +240,7 @@ function drawLabel(ctx, labelText, textColor, backgroundColor, labelPosition) {
   // fontBoundingBoxAscent has to be explicitly enabled in Firefox, so check for that
   const textHeight = textDimensions.fontBoundingBoxAscent
     ? textDimensions.fontBoundingBoxAscent
-    : parseInt(ctx.font, 10) - 4;
+    : parseInt(ctx.font, 10) - 2;
 
   // Calculate label xy position
   const labelX = labelPosition.x;
