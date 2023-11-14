@@ -1,6 +1,6 @@
 {
   "name": "react-leaflet-mgrs-graticule",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "A React-based MGRS graticule for Leaflet using Canvas",
   "homepage": "https://dnlbaldwin.github.io/React-Leaflet-MGRS-Graticule/",
   "main": "./src/MgrsGraticule.js",
@@ -22,8 +22,13 @@
   "author": "Dan Baldwin",
   "license": "MIT",
   "dependencies": {
-    "leaflet": "^1.7.1",
-    "mgrs": "^1.0.0"
+    "leaflet": "^1.9.4",
+    "mgrs": "^2.0.0"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0",
+    "react-leaflet": ">=3.2.5"
   },
   "devDependencies": {
     "react-scripts": "^5.0.1",

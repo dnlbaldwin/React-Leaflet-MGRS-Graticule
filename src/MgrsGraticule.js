@@ -680,6 +680,9 @@ class Graticule {
             // The grid array is larger than the GZD.  As such the first and last elements of the easting/northing
             // arrays will be outside of the GZD.  These points are required because they are used to derive the
             // point of intersection with the GZD boundary.
+            //******
+            // THIS IS WHERE THE BUG IS!!!
+            //******
             if (gridIntersectionLl.lng > gzdEastBoundary) {
               return;
             } else if (gridIntersectionLl.lng < gzdWestBoundary) {

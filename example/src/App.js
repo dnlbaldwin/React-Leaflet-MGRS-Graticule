@@ -17,8 +17,8 @@ const graticuleOptions = {
 function App() {
   return (
     <MapContainer
-      center={[45.4, -75.7]}
-      zoom={7}
+      center={[53.2637754, -77.963104]}
+      zoom={12}
       minZoom={3}
       maxZoom={18}
       maxNativeZoom={15}
